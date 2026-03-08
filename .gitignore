@@ -1,0 +1,13 @@
+# Archivos compilados
+target/
+*.class
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Mac OS
+.DS_Store
+
+# Variables de entorno locales
+.env
