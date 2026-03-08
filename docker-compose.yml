@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: gestorrh-postgres
+    environment:
+      POSTGRES_DB: gestion_plantillas
+      POSTGRES_USER: admin_rh
+      POSTGRES_PASSWORD: password_rh
+    ports:
+      - "5432:5432"
+    volumes:
+      - gestorrh_pgdata:/var/lib/postgresql/data
+
+volumes:
+  gestorrh_pgdata:
