@@ -24,4 +24,4 @@ jobs:
       - name: Ejecutar Tests con Maven
         env:
           SPRING_PROFILES_ACTIVE: test
-        run: ./mvnw clean test
+        run: mvn clean test
