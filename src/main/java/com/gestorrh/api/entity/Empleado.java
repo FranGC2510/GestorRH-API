@@ -71,4 +71,7 @@ public class Empleado {
     @Builder.Default
     @Column(name = "activo", nullable = false)
     private Boolean activo = true;
+
+    @Column(name = "fecha_baja_contrato")
+    private java.time.LocalDate fechaBajaContrato;
 }
