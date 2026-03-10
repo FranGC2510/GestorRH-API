@@ -88,4 +88,32 @@ public class EmpleadoController {
 
         return ResponseEntity.ok(respuesta);
     }
+
+    /**
+     * Endpoint para que el empleado obtenga los datos de su propio perfil.
+     * SOLO accesible para usuarios con el rol EMPLEADO.
+     * URL: GET http://localhost:8080/api/empleados/me
+     */
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('EMPLEADO')")
+    public ResponseEntity<RespuestaEmpleadoDTO> obtenerMiPerfil() {
+
+        RespuestaEmpleadoDTO miPerfil = empleadoService.obtenerMiPerfil();
+        return ResponseEntity.ok(miPerfil);
+    }
+
+    /**
+     * Endpoint para que el empleado cambie su propia contraseña.
+     * SOLO accesible para usuarios con el rol EMPLEADO.
+     * URL: PUT http://localhost:8080/api/empleados/me/contrasena
+     */
+    @PutMapping("/me/contrasena")
+    @PreAuthorize("hasRole('EMPLEADO')")
+    public ResponseEntity<Void> cambiarMiContrasena(
+            @Valid @RequestBody PeticionCambiarPasswordDTO peticion) {
+
+        empleadoService.cambiarMiContrasena(peticion);
+
+        return ResponseEntity.noContent().build();
+    }
 }

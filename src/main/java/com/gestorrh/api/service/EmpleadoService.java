@@ -1,9 +1,6 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.PeticionActualizarEmpleadoDTO;
-import com.gestorrh.api.dto.PeticionCrearEmpleadoDTO;
-import com.gestorrh.api.dto.RespuestaCrearEmpleadoDTO;
-import com.gestorrh.api.dto.RespuestaEmpleadoDTO;
+import com.gestorrh.api.dto.*;
 import com.gestorrh.api.entity.Empleado;
 import com.gestorrh.api.entity.Empresa;
 import com.gestorrh.api.repository.EmpleadoRepository;
@@ -203,5 +200,50 @@ public class EmpleadoService {
                 .rol(empleado.getRol())
                 .passwordGenerada(nuevaContrasenaPlana)
                 .build();
+    }
+
+    /**
+     * Obtiene los datos del empleado que ha iniciado sesión.
+     * Se basa exclusivamente en el Token JWT, ignorando cualquier ID externo.
+     */
+    @Transactional(readOnly = true)
+    public RespuestaEmpleadoDTO obtenerMiPerfil() {
+        String correoEmpleadoAuth = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Empleado empleado = empleadoRepository.findByEmail(correoEmpleadoAuth)
+                .orElseThrow(() -> new RuntimeException("Error crítico: Empleado no encontrado en el sistema"));
+
+        return RespuestaEmpleadoDTO.builder()
+                .idEmpleado(empleado.getIdEmpleado())
+                .email(empleado.getEmail())
+                .nombre(empleado.getNombre())
+                .apellidos(empleado.getApellidos())
+                .telefono(empleado.getTelefono())
+                .puesto(empleado.getPuesto())
+                .departamento(empleado.getDepartamento())
+                .rol(empleado.getRol())
+                .activo(empleado.getActivo())
+                .fechaBajaContrato(empleado.getFechaBajaContrato())
+                .build();
+    }
+
+    /**
+     * Permite al empleado autenticado cambiar su propia contraseña.
+     */
+    @Transactional
+    public void cambiarMiContrasena(PeticionCambiarPasswordDTO peticion) {
+        String correoEmpleadoAuth = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Empleado empleado = empleadoRepository.findByEmail(correoEmpleadoAuth)
+                .orElseThrow(() -> new RuntimeException("Error crítico: Empleado no encontrado en el sistema"));
+
+        if (!codificadorPassword.matches(peticion.getPasswordActual(), empleado.getPassword())) {
+            throw new RuntimeException("La contraseña actual no es correcta. Operación denegada.");
+        }
+
+        String nuevaContrasenaEncriptada = codificadorPassword.encode(peticion.getNuevaPassword());
+        empleado.setPassword(nuevaContrasenaEncriptada);
+
+        empleadoRepository.save(empleado);
     }
 }
