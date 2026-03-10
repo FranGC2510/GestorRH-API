@@ -1,5 +1,6 @@
 package com.gestorrh.api.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -44,5 +45,50 @@ public class ServicioJwt {
     private SecretKey obtenerClaveFirma() {
         byte[] keyBytes = Decoders.BASE64.decode(claveSecreta);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Extrae el email del token.
+     */
+    public String extraerEmail(String token) {
+        return extraerTodosLosClaims(token).getSubject();
+    }
+
+    /**
+     * Extrae el rol del token.
+     */
+    public String extraerRol(String token) {
+        return extraerTodosLosClaims(token).get("rol", String.class);
+    }
+
+    /**
+     * Extrae el ID del usuario del token.
+     */
+    public Long extraerId(String token) {
+        Number id = extraerTodosLosClaims(token).get("id", Number.class);
+        return id != null ? id.longValue() : null;
+    }
+
+    /**
+     * Verifica si un token es válido criptográficamente y no ha expirado.
+     */
+    public boolean esTokenValido(String token) {
+        try {
+            extraerTodosLosClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Método privado que hace el trabajo duro de desencriptar el token con nuestra clave secreta.
+     */
+    private Claims extraerTodosLosClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(obtenerClaveFirma())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
