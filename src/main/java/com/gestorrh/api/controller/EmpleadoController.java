@@ -71,7 +71,7 @@ public class EmpleadoController {
             @PathVariable Long id,
             @RequestBody @Valid PeticionBajaEmpleadoDTO peticion) {
 
-        empleadoService.darDeBajaEmpleado(id, peticion.getFecha_baja_contrato());
+        empleadoService.darDeBajaEmpleado(id, peticion.getFechaBajaContrato());
         return ResponseEntity.noContent().build();
     }
 
