@@ -1,8 +1,9 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.PeticionAsignacionTurnoDTO;
-import com.gestorrh.api.dto.RespuestaAsignacionTurnoDTO;
+import com.gestorrh.api.dto.asignacionDTO.PeticionAsignacionTurnoDTO;
+import com.gestorrh.api.dto.asignacionDTO.RespuestaAsignacionTurnoDTO;
 import com.gestorrh.api.entity.*;
+import com.gestorrh.api.entity.enums.ModalidadTurno;
 import com.gestorrh.api.repository.AsignacionTurnoRepository;
 import com.gestorrh.api.repository.EmpleadoRepository;
 import com.gestorrh.api.repository.EmpresaRepository;

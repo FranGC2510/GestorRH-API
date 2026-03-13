@@ -1,5 +1,6 @@
 package com.gestorrh.api.entity;
 
+import com.gestorrh.api.entity.enums.RolEmpleado;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

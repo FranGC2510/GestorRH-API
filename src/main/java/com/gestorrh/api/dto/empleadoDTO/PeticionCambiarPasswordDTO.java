@@ -1,4 +1,4 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.empleadoDTO;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

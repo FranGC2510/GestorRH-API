@@ -1,6 +1,6 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.*;
+import com.gestorrh.api.dto.empleadoDTO.*;
 import com.gestorrh.api.entity.Empleado;
 import com.gestorrh.api.entity.Empresa;
 import com.gestorrh.api.repository.EmpleadoRepository;

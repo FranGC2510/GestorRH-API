@@ -1,7 +1,7 @@
 package com.gestorrh.api.controller;
 
-import com.gestorrh.api.dto.PeticionLoginDTO;
-import com.gestorrh.api.dto.RespuestaLoginDTO;
+import com.gestorrh.api.dto.autenticacionDTO.PeticionLoginDTO;
+import com.gestorrh.api.dto.autenticacionDTO.RespuestaLoginDTO;
 import com.gestorrh.api.service.AutenticacionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

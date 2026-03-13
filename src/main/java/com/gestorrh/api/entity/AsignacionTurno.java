@@ -1,5 +1,6 @@
 package com.gestorrh.api.entity;
 
+import com.gestorrh.api.entity.enums.ModalidadTurno;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

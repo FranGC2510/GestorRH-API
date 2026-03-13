@@ -1,7 +1,7 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.PeticionTurnoDTO;
-import com.gestorrh.api.dto.RespuestaTurnoDTO;
+import com.gestorrh.api.dto.turnoDTO.PeticionTurnoDTO;
+import com.gestorrh.api.dto.turnoDTO.RespuestaTurnoDTO;
 import com.gestorrh.api.entity.Empresa;
 import com.gestorrh.api.entity.Turno;
 import com.gestorrh.api.repository.EmpresaRepository;

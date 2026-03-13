@@ -1,6 +1,6 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.empleadoDTO;
 
-import com.gestorrh.api.entity.RolEmpleado;
+import com.gestorrh.api.entity.enums.RolEmpleado;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

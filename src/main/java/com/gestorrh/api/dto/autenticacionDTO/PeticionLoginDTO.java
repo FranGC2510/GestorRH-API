@@ -1,4 +1,4 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.autenticacionDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

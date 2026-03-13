@@ -1,4 +1,4 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.empleadoDTO;
 
 import lombok.Data;
 import java.time.LocalDate;

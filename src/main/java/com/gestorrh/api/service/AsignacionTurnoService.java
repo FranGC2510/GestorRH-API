@@ -1,12 +1,10 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.PeticionAsignacionTurnoDTO;
-import com.gestorrh.api.dto.RespuestaAsignacionTurnoDTO;
+import com.gestorrh.api.dto.asignacionDTO.PeticionAsignacionTurnoDTO;
+import com.gestorrh.api.dto.asignacionDTO.RespuestaAsignacionTurnoDTO;
 import com.gestorrh.api.entity.*;
-import com.gestorrh.api.repository.AsignacionTurnoRepository;
-import com.gestorrh.api.repository.EmpleadoRepository;
-import com.gestorrh.api.repository.EmpresaRepository;
-import com.gestorrh.api.repository.TurnoRepository;
+import com.gestorrh.api.entity.enums.EstadoAusencia;
+import com.gestorrh.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +27,7 @@ public class AsignacionTurnoService {
     private final EmpleadoRepository empleadoRepository;
     private final TurnoRepository turnoRepository;
     private final EmpresaRepository empresaRepository;
+    private final AusenciaRepository ausenciaRepository;
 
     private static final long MAX_MINUTOS_JORNADA = 8 * 60;
 
@@ -47,6 +46,8 @@ public class AsignacionTurnoService {
         validarPrivilegiosAsignacion(emailAuth, esEmpresa, empleadoDestino, turno);
 
         validarLimiteHorasDiarias(empleadoDestino.getIdEmpleado(), peticion.getFecha(), turno);
+
+        validarQueNoEsteDeVacaciones(empleadoDestino.getIdEmpleado(), peticion.getFecha());
 
         AsignacionTurno nuevaAsignacion = AsignacionTurno.builder()
                 .empleado(empleadoDestino)
@@ -120,6 +121,8 @@ public class AsignacionTurnoService {
 
             validarLimiteHorasDiariasConDescuento(asignacionExistente.getEmpleado().getIdEmpleado(), peticion.getFecha(), nuevoTurno, minutosTurnoViejo);
         }
+
+        validarQueNoEsteDeVacaciones(asignacionExistente.getEmpleado().getIdEmpleado(), peticion.getFecha());
 
         if (peticion.getMotivoCambio() == null || peticion.getMotivoCambio().trim().isEmpty()) {
             throw new RuntimeException("El motivo del cambio es obligatorio para auditar la modificación.");
@@ -205,6 +208,12 @@ public class AsignacionTurnoService {
 
         if ((minutosTotales - minutosADescontar + minutosNuevoTurno) > MAX_MINUTOS_JORNADA) {
             throw new RuntimeException("Regla de negocio violada: El empleado no puede exceder las " + (MAX_MINUTOS_JORNADA / 60) + " horas de jornada en un mismo día.");
+        }
+    }
+
+    private void validarQueNoEsteDeVacaciones(Long idEmpleado, java.time.LocalDate fechaTurno) {
+        if (ausenciaRepository.tieneAusenciaAprobadaEnFecha(idEmpleado, EstadoAusencia.APROBADA, fechaTurno)) {
+            throw new RuntimeException("Regla de negocio violada: No se puede asignar un turno. El empleado tiene una ausencia APROBADA en esa fecha.");
         }
     }
 

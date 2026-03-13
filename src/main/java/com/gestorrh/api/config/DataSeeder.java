@@ -2,6 +2,7 @@ package com.gestorrh.api.config;
 
 import com.gestorrh.api.entity.Empleado;
 import com.gestorrh.api.entity.Empresa;
+import com.gestorrh.api.entity.enums.RolEmpleado;
 import com.gestorrh.api.repository.EmpleadoRepository;
 import com.gestorrh.api.repository.EmpresaRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class DataSeeder implements CommandLineRunner {
                     .password(codificadorPassword.encode("123456"))
                     .nombre("Juan")
                     .apellidos("Pérez")
-                    .rol(com.gestorrh.api.entity.RolEmpleado.EMPLEADO)
+                    .rol(RolEmpleado.EMPLEADO)
                     .activo(true)
                     .build();
 

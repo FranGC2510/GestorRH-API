@@ -1,4 +1,4 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.turnoDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

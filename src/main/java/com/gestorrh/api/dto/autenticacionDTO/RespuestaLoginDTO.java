@@ -1,4 +1,4 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.autenticacionDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

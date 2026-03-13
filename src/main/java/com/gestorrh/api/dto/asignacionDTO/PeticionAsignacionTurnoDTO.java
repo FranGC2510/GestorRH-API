@@ -1,6 +1,6 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.asignacionDTO;
 
-import com.gestorrh.api.entity.ModalidadTurno;
+import com.gestorrh.api.entity.enums.ModalidadTurno;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

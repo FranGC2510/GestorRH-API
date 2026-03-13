@@ -1,7 +1,6 @@
-package com.gestorrh.api.dto;
+package com.gestorrh.api.dto.empleadoDTO;
 
-import com.gestorrh.api.entity.RolEmpleado;
-import jakarta.validation.constraints.Email;
+import com.gestorrh.api.entity.enums.RolEmpleado;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PeticionCrearEmpleadoDTO {
-
-    @NotBlank(message = "El correo es obligatorio")
-    @Email(message = "El formato del correo no es válido")
-    private String email;
+public class PeticionActualizarEmpleadoDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
@@ -31,4 +26,7 @@ public class PeticionCrearEmpleadoDTO {
 
     @NotNull(message = "El rol es obligatorio")
     private RolEmpleado rol;
+
+    @NotNull(message = "El estado (activo/inactivo) es obligatorio")
+    private Boolean activo;
 }

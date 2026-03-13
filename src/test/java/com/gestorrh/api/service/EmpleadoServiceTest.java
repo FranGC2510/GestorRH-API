@@ -1,12 +1,12 @@
 package com.gestorrh.api.service;
 
-import com.gestorrh.api.dto.PeticionActualizarEmpleadoDTO;
-import com.gestorrh.api.dto.PeticionCrearEmpleadoDTO;
-import com.gestorrh.api.dto.RespuestaCrearEmpleadoDTO;
-import com.gestorrh.api.dto.RespuestaEmpleadoDTO;
+import com.gestorrh.api.dto.empleadoDTO.PeticionActualizarEmpleadoDTO;
+import com.gestorrh.api.dto.empleadoDTO.PeticionCrearEmpleadoDTO;
+import com.gestorrh.api.dto.empleadoDTO.RespuestaCrearEmpleadoDTO;
+import com.gestorrh.api.dto.empleadoDTO.RespuestaEmpleadoDTO;
 import com.gestorrh.api.entity.Empleado;
 import com.gestorrh.api.entity.Empresa;
-import com.gestorrh.api.entity.RolEmpleado;
+import com.gestorrh.api.entity.enums.RolEmpleado;
 import com.gestorrh.api.repository.EmpleadoRepository;
 import com.gestorrh.api.repository.EmpresaRepository;
 import org.junit.jupiter.api.BeforeEach;
