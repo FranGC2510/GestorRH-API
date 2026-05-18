@@ -217,10 +217,7 @@ public class ReporteService {
             LocalTime inicioTurno = f.getAsignacion().getTurno().getHoraInicio();
             LocalTime finTurno = f.getAsignacion().getTurno().getHoraFin();
 
-            minutosTeoricos = Duration.between(inicioTurno, finTurno).toMinutes();
-            if (minutosTeoricos < 0) {
-                minutosTeoricos += 24 * 60;
-            }
+            minutosTeoricos = TurnoService.calcularMinutosTurno(inicioTurno, finTurno);
 
             long minutosTotalesEfectivos = minutosTotales;
             LocalDateTime fechaHoraInicioTurno = f.getFecha().atTime(inicioTurno);

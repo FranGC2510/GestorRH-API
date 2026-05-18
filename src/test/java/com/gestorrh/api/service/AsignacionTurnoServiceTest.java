@@ -286,4 +286,41 @@ class AsignacionTurnoServiceTest {
 
         verify(asignacionRepository, times(1)).delete(asigExistente);
     }
+
+    @Test
+    @DisplayName("Un turno nocturno (22:00 → 06:00) no debe fallar la validación de jornada máxima")
+    void crearAsignacion_TurnoNocturno_NoExcedeJornada() {
+        simularAutenticacion(EMAIL_EMPRESA, "ROLE_EMPRESA");
+
+        Turno turnoNoche = Turno.builder()
+                .idTurno(200L)
+                .empresa(empresaPrueba)
+                .horaInicio(LocalTime.of(22, 0))
+                .horaFin(LocalTime.of(6, 0))
+                .descripcion("Turno Noche")
+                .build();
+
+        PeticionAsignacionTurnoDTO peticion = PeticionAsignacionTurnoDTO.builder()
+                .idEmpleado(10L)
+                .idTurno(200L)
+                .fecha(LocalDate.of(2026, 10, 15))
+                .modalidad(ModalidadTurno.PRESENCIAL)
+                .build();
+
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA)).thenReturn(Optional.of(empresaPrueba));
+        when(empleadoRepository.findById(10L)).thenReturn(Optional.of(empleadoDestino));
+        when(turnoRepository.findById(200L)).thenReturn(Optional.of(turnoNoche));
+        when(asignacionRepository.findByEmpleadoIdEmpleadoAndFecha(10L, peticion.getFecha()))
+                .thenReturn(Collections.emptyList());
+        when(ausenciaRepository.tieneAusenciaAprobadaEnFecha(anyLong(), eq(EstadoAusencia.APROBADA), any()))
+                .thenReturn(false);
+        when(asignacionRepository.save(any(AsignacionTurno.class)))
+                .thenAnswer(i -> i.getArgument(0));
+
+        RespuestaAsignacionTurnoDTO respuesta = asignacionService.crearAsignacion(peticion);
+
+        assertNotNull(respuesta);
+        assertEquals("Juan Pérez", respuesta.getNombreCompletoEmpleado());
+        verify(asignacionRepository, times(1)).save(any(AsignacionTurno.class));
+    }
 }

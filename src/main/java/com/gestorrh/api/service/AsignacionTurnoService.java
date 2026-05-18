@@ -168,7 +168,7 @@ public class AsignacionTurnoService {
         if (!asignacionExistente.getTurno().getIdTurno().equals(nuevoTurno.getIdTurno()) ||
                 !asignacionExistente.getFecha().equals(peticion.getFecha())) {
 
-            long minutosTurnoViejo = Duration.between(asignacionExistente.getTurno().getHoraInicio(), asignacionExistente.getTurno().getHoraFin()).toMinutes();
+            long minutosTurnoViejo = TurnoService.calcularMinutosTurno(asignacionExistente.getTurno().getHoraInicio(), asignacionExistente.getTurno().getHoraFin());
 
             validarLimiteHorasDiariasConDescuento(asignacionExistente.getEmpleado().getIdEmpleado(), peticion.getFecha(), nuevoTurno, minutosTurnoViejo);
         }
@@ -259,10 +259,10 @@ public class AsignacionTurnoService {
 
         long minutosTotales = 0;
         for (AsignacionTurno asig : turnosDelDia) {
-            minutosTotales += Duration.between(asig.getTurno().getHoraInicio(), asig.getTurno().getHoraFin()).toMinutes();
+            minutosTotales += TurnoService.calcularMinutosTurno(asig.getTurno().getHoraInicio(), asig.getTurno().getHoraFin());
         }
 
-        long minutosNuevoTurno = Duration.between(nuevoTurno.getHoraInicio(), nuevoTurno.getHoraFin()).toMinutes();
+        long minutosNuevoTurno = TurnoService.calcularMinutosTurno(nuevoTurno.getHoraInicio(), nuevoTurno.getHoraFin());
 
         if ((minutosTotales + minutosNuevoTurno) > MAX_MINUTOS_JORNADA) {
             throw new RuntimeException("Regla de negocio violada: El empleado no puede exceder las " + (MAX_MINUTOS_JORNADA / 60) + " horas de jornada en un mismo día.");
@@ -282,10 +282,10 @@ public class AsignacionTurnoService {
 
         long minutosTotales = 0;
         for (AsignacionTurno asig : turnosDelDia) {
-            minutosTotales += Duration.between(asig.getTurno().getHoraInicio(), asig.getTurno().getHoraFin()).toMinutes();
+            minutosTotales += TurnoService.calcularMinutosTurno(asig.getTurno().getHoraInicio(), asig.getTurno().getHoraFin());
         }
 
-        long minutosNuevoTurno = Duration.between(nuevoTurno.getHoraInicio(), nuevoTurno.getHoraFin()).toMinutes();
+        long minutosNuevoTurno = TurnoService.calcularMinutosTurno(nuevoTurno.getHoraInicio(), nuevoTurno.getHoraFin());
 
         if ((minutosTotales - minutosADescontar + minutosNuevoTurno) > MAX_MINUTOS_JORNADA) {
             throw new RuntimeException("Regla de negocio violada: El empleado no puede exceder las " + (MAX_MINUTOS_JORNADA / 60) + " horas de jornada en un mismo día.");

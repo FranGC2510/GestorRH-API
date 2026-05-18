@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -167,16 +169,49 @@ public class TurnoService {
     }
 
     /**
-     * Realiza la validación de las reglas de negocio horarias para un turno.
-     * Comprueba fundamentalmente que la hora de inicio sea anterior a la hora de finalización.
+     * Valida las reglas de negocio horarias para un turno.
+     * <p>
+     * Un turno es válido si cumple una de estas dos condiciones:
+     * </p>
+     * <ul>
+     *   <li><b>Turno diurno:</b> horaFin es estrictamente posterior a horaInicio.</li>
+     *   <li><b>Turno nocturno:</b> horaInicio >= 17:00 y horaFin está en el rango [00:00, 08:00].</li>
+     * </ul>
      *
      * @param peticion DTO que contiene las horas a validar.
-     * @throws RuntimeException Si la hora de inicio no es estrictamente anterior a la hora de fin.
+     * @throws RuntimeException Si las horas no cumplen ninguna de las condiciones válidas.
      */
     private void validarHoras(PeticionTurnoDTO peticion) {
-        if (!peticion.getHoraInicio().isBefore(peticion.getHoraFin())) {
-            throw new RuntimeException("Regla de negocio violada: La hora de inicio debe ser estrictamente anterior a la hora de fin.");
+        LocalTime inicio = peticion.getHoraInicio();
+        LocalTime fin = peticion.getHoraFin();
+
+        boolean esDiurnoValido = fin.isAfter(inicio);
+
+        boolean esNocturnoValido = !inicio.isBefore(LocalTime.of(16, 0))
+                && !fin.isAfter(LocalTime.of(8, 0));
+
+        if (!esDiurnoValido && !esNocturnoValido) {
+            throw new RuntimeException(
+                    "Regla de negocio violada: Turno inválido. Para turnos diurnos la hora de fin debe ser " +
+                            "posterior a la de inicio. Para turnos nocturnos la hora de inicio debe ser a partir " +
+                            "de las 17:00 y la hora de fin no puede superar las 08:00.");
         }
+    }
+
+    /**
+     * Calcula los minutos reales de un turno teniendo en cuenta que puede cruzar medianoche.
+     * <p>
+     * Si horaFin es anterior o igual a horaInicio se interpreta que el turno termina
+     * al día siguiente, sumando 24 horas al resultado negativo de Duration.between.
+     * </p>
+     *
+     * @param horaInicio Hora de inicio del turno.
+     * @param horaFin    Hora de fin del turno.
+     * @return Duración real del turno expresada en minutos.
+     */
+    public static long calcularMinutosTurno(LocalTime horaInicio, LocalTime horaFin) {
+        long minutos = Duration.between(horaInicio, horaFin).toMinutes();
+        return minutos <= 0 ? minutos + 24 * 60 : minutos;
     }
 
     /**

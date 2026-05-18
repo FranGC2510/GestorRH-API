@@ -81,19 +81,19 @@ class TurnoServiceTest {
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si la hora de inicio es posterior o igual a la de fin")
+    @DisplayName("Debe lanzar excepción si la hora de inicio es posterior a la de fin en horario diurno (14:00 → 10:00)")
     void crearTurno_HorasInvalidas_LanzaExcepcion() {
         PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
                 .descripcion("Turno Imposible")
-                .horaInicio(LocalTime.of(15, 0))
-                .horaFin(LocalTime.of(8, 0))
+                .horaInicio(LocalTime.of(14, 0))
+                .horaFin(LocalTime.of(10, 0))
                 .build();
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             turnoService.crearTurno(peticion);
         });
 
-        assertTrue(exception.getMessage().contains("La hora de inicio debe ser estrictamente anterior"));
+        assertTrue(exception.getMessage().contains("Turno inválido"));
         verify(turnoRepository, never()).save(any(Turno.class));
     }
 
@@ -160,5 +160,114 @@ class TurnoServiceTest {
         turnoService.eliminarTurno(idTurnoTarget);
 
         verify(turnoRepository, times(1)).delete(turnoPropio);
+    }
+
+    @Test
+    @DisplayName("Debe crear un turno nocturno válido (22:00 → 06:00)")
+    void crearTurno_Nocturno_Exito() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Noche")
+                .horaInicio(LocalTime.of(22, 0))
+                .horaFin(LocalTime.of(6, 0))
+                .build();
+
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA_AUTH)).thenReturn(Optional.of(empresaPrueba));
+        when(turnoRepository.save(any(Turno.class))).thenAnswer(invocation -> {
+            Turno t = invocation.getArgument(0);
+            t.setIdTurno(20L);
+            return t;
+        });
+
+        RespuestaTurnoDTO respuesta = turnoService.crearTurno(peticion);
+
+        assertNotNull(respuesta);
+        assertEquals("Turno Noche", respuesta.getDescripcion());
+        verify(turnoRepository, times(1)).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe crear un turno nocturno en el límite exacto (17:00 → 08:00)")
+    void crearTurno_NocturnoLimiteExacto_Exito() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Límite")
+                .horaInicio(LocalTime.of(17, 0))
+                .horaFin(LocalTime.of(8, 0))
+                .build();
+
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA_AUTH)).thenReturn(Optional.of(empresaPrueba));
+        when(turnoRepository.save(any(Turno.class))).thenAnswer(invocation -> {
+            Turno t = invocation.getArgument(0);
+            t.setIdTurno(21L);
+            return t;
+        });
+
+        RespuestaTurnoDTO respuesta = turnoService.crearTurno(peticion);
+
+        assertNotNull(respuesta);
+        verify(turnoRepository, times(1)).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe rechazar un turno diurno con horaFin menor que horaInicio (14:00 → 10:00)")
+    void crearTurno_DiurnoInvertido_LanzaExcepcion() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Inválido")
+                .horaInicio(LocalTime.of(14, 0))
+                .horaFin(LocalTime.of(10, 0))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                turnoService.crearTurno(peticion));
+
+        assertTrue(ex.getMessage().contains("Turno inválido"));
+        verify(turnoRepository, never()).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe rechazar un turno nocturno con horaFin fuera del rango permitido (22:00 → 09:00)")
+    void crearTurno_NocturnoConHoraFinFueraDeRango_LanzaExcepcion() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Inválido Nocturno")
+                .horaInicio(LocalTime.of(22, 0))
+                .horaFin(LocalTime.of(9, 0))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                turnoService.crearTurno(peticion));
+
+        assertTrue(ex.getMessage().contains("Turno inválido"));
+        verify(turnoRepository, never()).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe rechazar un turno con horaInicio < 16:00 y horaFin en rango nocturno (15:59 → 01:00)")
+    void crearTurno_InicioAntesDe16ConFinNocturno_LanzaExcepcion() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Inválido Mixto")
+                .horaInicio(LocalTime.of(15, 59))
+                .horaFin(LocalTime.of(1, 0))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                turnoService.crearTurno(peticion));
+
+        assertTrue(ex.getMessage().contains("Turno inválido"));
+        verify(turnoRepository, never()).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe rechazar un turno con duración cero (22:00 → 22:00)")
+    void crearTurno_DuracionCero_LanzaExcepcion() {
+        PeticionTurnoDTO peticion = PeticionTurnoDTO.builder()
+                .descripcion("Turno Cero")
+                .horaInicio(LocalTime.of(22, 0))
+                .horaFin(LocalTime.of(22, 0))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                turnoService.crearTurno(peticion));
+
+        assertTrue(ex.getMessage().contains("Turno inválido"));
+        verify(turnoRepository, never()).save(any(Turno.class));
     }
 }
