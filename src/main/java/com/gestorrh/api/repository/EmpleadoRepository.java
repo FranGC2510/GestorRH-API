@@ -35,6 +35,15 @@ public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
     List<Empleado> findByEmpresaIdEmpresa(Long idEmpresa);
 
     /**
+     * Busca todos los empleados de una empresa en un departamento específico.
+     * Usado por el rol SUPERVISOR para obtener únicamente los empleados de su ámbito.
+     * @param idEmpresa El ID de la empresa.
+     * @param departamento El nombre del departamento (ignora mayúsculas/minúsculas).
+     * @return Lista de empleados del departamento indicado.
+     */
+    List<Empleado> findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(Long idEmpresa, String departamento);
+
+    /**
      * Desactiva automáticamente a los empleados cuya fecha de baja de contrato ya ha pasado.
      * @return El número de empleados que han sido desactivados.
      */
