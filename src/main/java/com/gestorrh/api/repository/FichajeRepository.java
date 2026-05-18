@@ -54,14 +54,14 @@ public interface FichajeRepository extends JpaRepository<Fichaje, Long> {
             @Param("fechaFin") LocalDate fechaFin);
 
     /**
-     * Obtiene un ranking de los empleados con más retrasos (fichajes marcados "fuera de horario").
+     * Obtiene un ranking de los empleados con más retrasos (fichajes marcados "Retraso en la entrada").
      * @param idEmpresa El ID de la empresa.
      * @return Lista de arrays de objetos conteniendo el nombre del empleado y el número de retrasos.
      */
     @Query("SELECT f.empleado.nombre, COUNT(f) " +
             "FROM Fichaje f " +
             "WHERE f.empleado.empresa.idEmpresa = :idEmpresa " +
-            "AND f.incidencias LIKE '%fuera de horario%' " +
+            "AND f.incidencias LIKE '%Retraso en la entrada%' " +
             "GROUP BY f.empleado.nombre " +
             "ORDER BY COUNT(f) DESC")
     List<Object[]> obtenerTopRetrasos(@Param("idEmpresa") Long idEmpresa);
