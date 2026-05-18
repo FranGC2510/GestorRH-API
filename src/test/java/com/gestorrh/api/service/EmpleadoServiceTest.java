@@ -18,10 +18,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,8 +59,8 @@ class EmpleadoServiceTest {
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(EMAIL_EMPRESA_AUTH);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(EMAIL_EMPRESA_AUTH);
 
         SecurityContextHolder.setContext(securityContext);
     }
@@ -115,6 +117,15 @@ class EmpleadoServiceTest {
     @Test
     @DisplayName("Debe devolver la lista de empleados de la empresa autenticada")
     void obtenerEmpleadosDeEmpresa_Exito() {
+
+        Authentication auth = mock(Authentication.class);
+        SecurityContext ctx = mock(SecurityContext.class);
+        lenient().when(ctx.getAuthentication()).thenReturn(auth);
+        lenient().when(auth.getName()).thenReturn(EMAIL_EMPRESA_AUTH);
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        lenient().when(authority.getAuthority()).thenReturn("ROLE_EMPRESA");
+        lenient().doReturn(Collections.singletonList(authority)).when(auth).getAuthorities();
+        SecurityContextHolder.setContext(ctx);
 
         when(empresaRepository.findByEmail(EMAIL_EMPRESA_AUTH)).thenReturn(Optional.of(empresaPrueba));
 
@@ -253,5 +264,91 @@ class EmpleadoServiceTest {
         assertTrue(exception.getMessage().contains("Acceso denegado"));
         verify(codificadorPassword, never()).encode(anyString());
         verify(empleadoRepository, never()).save(any(Empleado.class));
+    }
+
+    @Test
+    @DisplayName("SUPERVISOR obtiene únicamente los empleados de su departamento")
+    void obtenerEmpleadosDeEmpresa_ComoSupervisor_FiltraPorDepartamento() {
+        String emailSupervisor = "super@miempresa.com";
+        simularAutenticacionSupervisor(emailSupervisor);
+
+        Empleado supervisor = Empleado.builder()
+                .idEmpleado(99L)
+                .email(emailSupervisor)
+                .empresa(empresaPrueba)
+                .departamento("IT")
+                .build();
+
+        Empleado emp1 = Empleado.builder().idEmpleado(1L).email("emp1@test.com").nombre("Ana").apellidos("García").departamento("IT").empresa(empresaPrueba).activo(true).build();
+        Empleado emp2 = Empleado.builder().idEmpleado(2L).email("emp2@test.com").nombre("Luis").apellidos("Pérez").departamento("IT").empresa(empresaPrueba).activo(true).build();
+
+        when(empleadoRepository.findByEmail(emailSupervisor)).thenReturn(Optional.of(supervisor));
+        when(empleadoRepository.findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(empresaPrueba.getIdEmpresa(), "IT"))
+                .thenReturn(List.of(emp1, emp2));
+
+        List<RespuestaEmpleadoDTO> resultado = empleadoService.obtenerEmpleadosDeEmpresa();
+
+        assertEquals(2, resultado.size());
+        assertTrue(resultado.stream().allMatch(e -> "IT".equals(e.getDepartamento())));
+        verify(empleadoRepository, times(1)).findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(empresaPrueba.getIdEmpresa(), "IT");
+        verify(empleadoRepository, never()).findByEmpresaIdEmpresa(anyLong());
+    }
+
+    @Test
+    @DisplayName("SUPERVISOR sin departamento asignado devuelve lista vacía")
+    void obtenerEmpleadosDeEmpresa_SupervisorSinDepartamento_DevuelveListaVacia() {
+        String emailSupervisor = "super@miempresa.com";
+        simularAutenticacionSupervisor(emailSupervisor);
+
+        Empleado supervisorSinDepto = Empleado.builder()
+                .idEmpleado(99L)
+                .email(emailSupervisor)
+                .empresa(empresaPrueba)
+                .departamento(null)
+                .build();
+
+        when(empleadoRepository.findByEmail(emailSupervisor)).thenReturn(Optional.of(supervisorSinDepto));
+
+        List<RespuestaEmpleadoDTO> resultado = empleadoService.obtenerEmpleadosDeEmpresa();
+
+        assertTrue(resultado.isEmpty());
+        verify(empleadoRepository, never()).findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(anyLong(), anyString());
+    }
+
+    @Test
+    @DisplayName("EMPRESA sigue obteniendo todos sus empleados sin regresión")
+    void obtenerEmpleadosDeEmpresa_ComoEmpresa_DevuelveTodosSinRegresion() {
+        Authentication auth = mock(Authentication.class);
+        SecurityContext ctx = mock(SecurityContext.class);
+        lenient().when(ctx.getAuthentication()).thenReturn(auth);
+        lenient().when(auth.getName()).thenReturn(EMAIL_EMPRESA_AUTH);
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        lenient().when(authority.getAuthority()).thenReturn("ROLE_EMPRESA");
+        lenient().doReturn(Collections.singletonList(authority)).when(auth).getAuthorities();
+        SecurityContextHolder.setContext(ctx);
+
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA_AUTH)).thenReturn(Optional.of(empresaPrueba));
+
+        Empleado emp1 = Empleado.builder().idEmpleado(1L).email("emp1@test.com").nombre("Ana").activo(true).departamento("IT").build();
+        Empleado emp2 = Empleado.builder().idEmpleado(2L).email("emp2@test.com").nombre("Luis").activo(true).departamento("RRHH").build();
+
+        when(empleadoRepository.findByEmpresaIdEmpresa(empresaPrueba.getIdEmpresa())).thenReturn(List.of(emp1, emp2));
+
+        List<RespuestaEmpleadoDTO> resultado = empleadoService.obtenerEmpleadosDeEmpresa();
+
+        assertEquals(2, resultado.size());
+        verify(empleadoRepository, times(1)).findByEmpresaIdEmpresa(empresaPrueba.getIdEmpresa());
+        verify(empleadoRepository, never()).findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(anyLong(), anyString());
+    }
+
+    private void simularAutenticacionSupervisor(String email) {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(email);
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        when(authority.getAuthority()).thenReturn("ROLE_SUPERVISOR");
+        doReturn(Collections.singletonList(authority)).when(authentication).getAuthorities();
+        SecurityContextHolder.setContext(securityContext);
     }
 }

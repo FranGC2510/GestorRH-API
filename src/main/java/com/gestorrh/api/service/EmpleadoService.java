@@ -8,6 +8,7 @@ import com.gestorrh.api.repository.EmpresaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -94,22 +95,43 @@ public class EmpleadoService {
     }
 
     /**
-     * Recupera la lista completa de empleados que pertenecen a la empresa autenticada.
+     * Recupera la lista de empleados según el rol del usuario autenticado.
      * <p>
-     * Calcula dinámicamente el estado de actividad basándose en la fecha de baja del contrato.
+     * La EMPRESA obtiene todos los empleados de su organización.
+     * El SUPERVISOR obtiene únicamente los empleados de su mismo departamento,
+     * aplicando el filtro automáticamente desde el SecurityContext.
+     * Si el supervisor no tiene departamento asignado, se devuelve lista vacía.
      * </p>
      *
-     * @return List de {@link RespuestaEmpleadoDTO} con el personal de la empresa.
+     * @return List de {@link RespuestaEmpleadoDTO} con el personal visible para el usuario autenticado.
      */
     @Transactional(readOnly = true)
     public List<RespuestaEmpleadoDTO> obtenerEmpleadosDeEmpresa() {
 
-        String correoEmpresaAuth = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String emailAuth = auth.getName();
+        boolean esEmpresa = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_EMPRESA"));
 
-        Empresa empresa = empresaRepository.findByEmail(correoEmpresaAuth)
-                .orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada"));
+        List<Empleado> empleados;
 
-        List<Empleado> empleados = empleadoRepository.findByEmpresaIdEmpresa(empresa.getIdEmpresa());
+        if (esEmpresa) {
+            Empresa empresa = empresaRepository.findByEmail(emailAuth)
+                    .orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada"));
+            empleados = empleadoRepository.findByEmpresaIdEmpresa(empresa.getIdEmpresa());
+        } else {
+            Empleado supervisor = empleadoRepository.findByEmail(emailAuth)
+                    .orElseThrow(() -> new EntityNotFoundException("Supervisor no encontrado"));
+
+            String departamento = supervisor.getDepartamento();
+            if (departamento == null || departamento.isBlank()) {
+                log.warn("El supervisor '{}' no tiene departamento asignado. Se devuelve lista vacía.", emailAuth);
+                return List.of();
+            }
+
+            empleados = empleadoRepository.findByEmpresaIdEmpresaAndDepartamentoIgnoreCase(
+                    supervisor.getEmpresa().getIdEmpresa(), departamento);
+        }
 
         return empleados.stream().map(emp -> {
             boolean esRealmenteActivo = emp.getActivo() &&
@@ -124,7 +146,7 @@ public class EmpleadoService {
                     .puesto(emp.getPuesto())
                     .departamento(emp.getDepartamento())
                     .rol(emp.getRol())
-                    .activo(emp.getActivo())
+                    .activo(esRealmenteActivo)
                     .fechaBajaContrato(emp.getFechaBajaContrato())
                     .build();
         }).collect(Collectors.toList());
