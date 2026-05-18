@@ -102,6 +102,7 @@ jobs:
           host: ${{ secrets.ORACLE_HOST }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
+          script_stop: true
           script: |
             cd /opt/gestorrh
 
