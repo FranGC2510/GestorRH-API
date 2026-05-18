@@ -83,10 +83,13 @@ public class EmpleadoController {
      * @return ResponseEntity con una lista de {@link RespuestaEmpleadoDTO} y estado 200 (OK).
      */
     @GetMapping
-    @PreAuthorize("hasRole('EMPRESA')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
-            summary = "Listar todos los empleados",
-            description = "Requiere Token de EMPRESA. Obtiene el catálogo completo de empleados pertenecientes a la empresa autenticada."
+            summary = "Listar empleados",
+            description = "Requiere Token de EMPRESA o SUPERVISOR. " +
+                    "La EMPRESA obtiene el catálogo completo de todos los empleados de la organización. " +
+                    "El SUPERVISOR obtiene únicamente los empleados de su mismo departamento, " +
+                    "filtrado automáticamente desde el JWT sin necesidad de parámetros adicionales."
     )
     @ApiErroresLectura
     public ResponseEntity<List<RespuestaEmpleadoDTO>> listarEmpleados() {
