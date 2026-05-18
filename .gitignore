@@ -16,5 +16,6 @@ target/
 logs/
 *.log
 .claude/
+CLAUDE.md
 
 uploads/
