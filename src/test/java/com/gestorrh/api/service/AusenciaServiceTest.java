@@ -222,4 +222,92 @@ class AusenciaServiceTest {
         assertNotNull(descargado, "El valor del campo justificante debe ser usable directamente para descargar el archivo.");
         verify(fileStorageService).cargarArchivoComoRecurso(nombreSimpleGenerado);
     }
+
+    @Test
+    @DisplayName("eliminarJustificante=true con justificante previo → campo null y archivo físico eliminado")
+    void actualizarMiAusencia_EliminarJustificante_ConJustificantePrevio() {
+        simularAutenticacion(EMAIL_EMPLEADO, "ROLE_EMPLEADO");
+        when(empleadoRepository.findByEmail(EMAIL_EMPLEADO)).thenReturn(Optional.of(empleadoLogueado));
+
+        Ausencia ausenciaConJustificante = Ausencia.builder()
+                .idAusencia(1L).empleado(empleadoLogueado).estado(EstadoAusencia.SOLICITADA)
+                .justificante("archivo-existente.pdf").build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaConJustificante));
+        when(ausenciaRepository.findAusenciasSolapadas(eq(10L), anyList(), any(), any())).thenReturn(List.of());
+        when(ausenciaRepository.save(any(Ausencia.class))).thenAnswer(i -> i.getArgument(0));
+
+        PeticionAusenciaDTO peticion = PeticionAusenciaDTO.builder()
+                .tipo(TipoAusencia.VACACIONES)
+                .fechaInicio(LocalDate.of(2026, 11, 1))
+                .fechaFin(LocalDate.of(2026, 11, 5))
+                .eliminarJustificante(true)
+                .build();
+
+        RespuestaAusenciaDTO respuesta = ausenciaService.actualizarMiAusencia(1L, peticion, null);
+
+        assertNull(respuesta.getJustificante());
+        verify(fileStorageService, times(1)).eliminarArchivo("archivo-existente.pdf");
+        verify(fileStorageService, never()).guardarArchivo(any());
+    }
+
+    @Test
+    @DisplayName("eliminarJustificante=true sin justificante previo → no lanza excepción y campo queda null")
+    void actualizarMiAusencia_EliminarJustificante_SinJustificantePrevio() {
+        simularAutenticacion(EMAIL_EMPLEADO, "ROLE_EMPLEADO");
+        when(empleadoRepository.findByEmail(EMAIL_EMPLEADO)).thenReturn(Optional.of(empleadoLogueado));
+
+        Ausencia ausenciaSinJustificante = Ausencia.builder()
+                .idAusencia(1L).empleado(empleadoLogueado).estado(EstadoAusencia.SOLICITADA)
+                .justificante(null).build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaSinJustificante));
+        when(ausenciaRepository.findAusenciasSolapadas(eq(10L), anyList(), any(), any())).thenReturn(List.of());
+        when(ausenciaRepository.save(any(Ausencia.class))).thenAnswer(i -> i.getArgument(0));
+
+        PeticionAusenciaDTO peticion = PeticionAusenciaDTO.builder()
+                .tipo(TipoAusencia.VACACIONES)
+                .fechaInicio(LocalDate.of(2026, 11, 1))
+                .fechaFin(LocalDate.of(2026, 11, 5))
+                .eliminarJustificante(true)
+                .build();
+
+        RespuestaAusenciaDTO respuesta = ausenciaService.actualizarMiAusencia(1L, peticion, null);
+
+        assertNull(respuesta.getJustificante());
+        verify(fileStorageService, never()).eliminarArchivo(any());
+        verify(fileStorageService, never()).guardarArchivo(any());
+    }
+
+    @Test
+    @DisplayName("eliminarJustificante=true con archivo simultáneo → eliminación tiene precedencia, archivo nuevo no se guarda")
+    void actualizarMiAusencia_EliminarJustificante_PrecedenciaSobreArchivo() {
+        simularAutenticacion(EMAIL_EMPLEADO, "ROLE_EMPLEADO");
+        when(empleadoRepository.findByEmail(EMAIL_EMPLEADO)).thenReturn(Optional.of(empleadoLogueado));
+
+        Ausencia ausenciaConJustificante = Ausencia.builder()
+                .idAusencia(1L).empleado(empleadoLogueado).estado(EstadoAusencia.SOLICITADA)
+                .justificante("archivo-existente.pdf").build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaConJustificante));
+        when(ausenciaRepository.findAusenciasSolapadas(eq(10L), anyList(), any(), any())).thenReturn(List.of());
+        when(ausenciaRepository.save(any(Ausencia.class))).thenAnswer(i -> i.getArgument(0));
+
+        PeticionAusenciaDTO peticion = PeticionAusenciaDTO.builder()
+                .tipo(TipoAusencia.VACACIONES)
+                .fechaInicio(LocalDate.of(2026, 11, 1))
+                .fechaFin(LocalDate.of(2026, 11, 5))
+                .eliminarJustificante(true)
+                .build();
+
+        MockMultipartFile archivoNuevo = new MockMultipartFile(
+                "archivo", "nuevo.pdf", "application/pdf", "contenido".getBytes()
+        );
+
+        RespuestaAusenciaDTO respuesta = ausenciaService.actualizarMiAusencia(1L, peticion, archivoNuevo);
+
+        assertNull(respuesta.getJustificante());
+        verify(fileStorageService, times(1)).eliminarArchivo("archivo-existente.pdf");
+        verify(fileStorageService, never()).guardarArchivo(any());
+    }
 }

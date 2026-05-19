@@ -104,10 +104,22 @@ public class AusenciaService {
     /**
      * Permite al empleado modificar una solicitud de ausencia que todavía no ha sido procesada.
      * Si la solicitud ya ha sido aprobada o rechazada, la modificación queda prohibida.
+     * <p>
+     * La gestión del justificante sigue esta lógica de precedencia:
+     * </p>
+     * <ol>
+     *   <li>Si {@code eliminarJustificante} es {@code true} en la petición, el justificante
+     *       actual se elimina del almacenamiento y el campo queda a {@code null},
+     *       independientemente de si se adjunta un archivo nuevo.</li>
+     *   <li>Si se adjunta un {@code archivoNuevo}, el justificante anterior se reemplaza por el nuevo.</li>
+     *   <li>Si no se indica ninguna de las anteriores, el justificante actual se conserva sin cambios.</li>
+     * </ol>
      *
      * @param idAusencia Identificador de la ausencia a editar.
-     * @param peticion Nuevos datos para la solicitud.
-     * @param archivoNuevo Nuevo archivo justificante (reemplaza al anterior si existe).
+     * @param peticion Nuevos datos para la solicitud. El campo {@code eliminarJustificante}
+     *                 permite eliminar el justificante actual sin adjuntar uno nuevo.
+     * @param archivoNuevo Nuevo archivo justificante opcional que reemplazará al anterior si se proporciona
+     *                     y {@code eliminarJustificante} no es {@code true}.
      * @return {@link RespuestaAusenciaDTO} con la ausencia actualizada.
      */
     @Transactional
@@ -123,7 +135,14 @@ public class AusenciaService {
         validarFechas(peticion.getFechaInicio(), peticion.getFechaFin());
         validarSolapamientoAusencias(empleadoLogueado.getIdEmpleado(), peticion.getFechaInicio(), peticion.getFechaFin(), idAusencia);
 
-        if (archivoNuevo != null && !archivoNuevo.isEmpty()) {
+        boolean deseaEliminar = Boolean.TRUE.equals(peticion.getEliminarJustificante());
+
+        if (deseaEliminar) {
+            if (ausencia.getJustificante() != null) {
+                fileStorageService.eliminarArchivo(ausencia.getJustificante());
+            }
+            ausencia.setJustificante(null);
+        } else if (archivoNuevo != null && !archivoNuevo.isEmpty()) {
             if (ausencia.getJustificante() != null) {
                 fileStorageService.eliminarArchivo(ausencia.getJustificante());
             }
