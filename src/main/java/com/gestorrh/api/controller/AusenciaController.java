@@ -167,7 +167,13 @@ public class AusenciaController {
     @Operation(
             summary = "Actualizar mi solicitud de ausencia",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Permite modificar datos o reemplazar el " +
-                    "justificante de una ausencia que aún esté en estado PENDIENTE."
+                    "justificante de una ausencia que aún esté en estado SOLICITADA. " +
+                    "Para gestionar el justificante, el objeto JSON de la parte 'datos' admite el campo " +
+                    "'eliminarJustificante' (Boolean): " +
+                    "si se envía a true, el justificante actual se elimina y el campo queda a null, " +
+                    "con independencia de si se adjunta también un archivo nuevo. " +
+                    "Si no se envía el campo o se envía a false, el comportamiento es el habitual: " +
+                    "sin archivo el justificante se conserva, con archivo se reemplaza."
     )
     @ApiErroresAccion
     public ResponseEntity<RespuestaAusenciaDTO> actualizarMiAusencia(

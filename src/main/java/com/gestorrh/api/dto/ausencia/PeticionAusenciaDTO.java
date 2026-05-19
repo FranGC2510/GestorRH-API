@@ -30,4 +30,7 @@ public class PeticionAusenciaDTO {
 
     @NotNull(message = "La fecha de fin es obligatoria")
     private LocalDate fechaFin;
+
+    @Builder.Default
+    private Boolean eliminarJustificante = false;
 }
