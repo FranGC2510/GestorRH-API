@@ -1,7 +1,7 @@
 # GestorRH - API REST
  
 [![CI Pipeline](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml/badge.svg)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-v1.2.0--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.2.0)
+[![Version](https://img.shields.io/badge/version-v1.3.0--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.3.0)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
@@ -190,8 +190,12 @@ La estrategia de versionado sigue **Semantic Versioning** (`MAJOR.MINOR.PATCH`):
     Corrección crítica que excluye correctamente las rutas públicas del filtro de autenticación JWT, resolviendo el bloqueo en el login.
 - **`v1.1.3`** → parche de autenticación y pipeline.
   Añade prefijo `/api/auth` a las rutas públicas de autenticación y garantiza la actualización del contenedor en cada deploy con `--force-recreate`.
-- **`v1.2.0`** → nueva funcionalidad y correcciones. *(latest)*
+- **`v1.2.0`** → nueva funcionalidad y correcciones.
   Acceso del rol SUPERVISOR a `GET /api/empleados` filtrado por departamento, soporte de turnos nocturnos, corrección del DataSeeder y mejora del pipeline de deploy.
+- **`v1.3.0`** → soporte para eliminar justificante en ausencias. *(latest)*
+  Permite al empleado eliminar el justificante adjunto de una ausencia en estado SOLICITADA
+  sin necesidad de adjuntar un archivo nuevo, resolviendo el bloqueo cuando se adjuntaba
+  un archivo incorrecto.
 ### Criterio de uso
  
 Para integración con clientes y despliegue, la referencia será siempre la **última versión estable aprobada**, no necesariamente el último commit de la rama `main`.
