@@ -53,7 +53,7 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con el {@link RespuestaAsignacionTurnoDTO} creado y estado 201 (Created).
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Crear asignación de turno",
             description = "Requiere Token de EMPRESA o SUPERVISOR. Asigna un turno específico a un empleado en una fecha y modalidad determinada.",
@@ -80,7 +80,7 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con la lista de {@link RespuestaAsignacionTurnoDTO} permitidas.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Listar asignaciones (Global/Equipo)",
             description = "Requiere Token de EMPRESA o SUPERVISOR. La EMPRESA visualiza toda la planificación; el SUPERVISOR " +
@@ -104,7 +104,7 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con la lista de {@link RespuestaAsignacionTurnoDTO} del usuario logueado.
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Mis asignaciones (Perfil propio)",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Recupera el listado exclusivo de la planificación " +
@@ -130,7 +130,7 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con el {@link RespuestaAsignacionTurnoDTO} actualizado.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Actualizar asignación",
             description = "Requiere Token de EMPRESA o SUPERVISOR. Modifica una asignación existente. " +
@@ -157,7 +157,7 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con cuerpo vacío y estado 204 (No Content).
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Eliminar asignación",
             description = "Requiere Token de EMPRESA o SUPERVISOR. Borra de forma permanente una asignación de turno del " +
@@ -184,10 +184,10 @@ public class AsignacionTurnoController {
      * @return ResponseEntity con una lista de los valores del enum {@link ModalidadTurno}.
      */
     @GetMapping("/modalidades")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR', 'EMPLEADO')")
     @Operation(
             summary = "Listar modalidades disponibles",
-            description = "Requiere Token de EMPRESA o SUPERVISOR. Endpoint de diccionario que devuelve los " +
+            description = "Requiere Token de EMPRESA, SUPERVISOR o EMPLEADO. Endpoint de diccionario que devuelve los " +
                     "valores posibles (ej: Presencial, Teletrabajo)."
     )
     @ApiErroresLectura

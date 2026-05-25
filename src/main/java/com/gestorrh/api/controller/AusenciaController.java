@@ -61,7 +61,7 @@ public class AusenciaController {
      * @return ResponseEntity con una lista de los valores del enum {@link TipoAusencia}.
      */
     @GetMapping("/tipos")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR', 'EMPLEADO')")
     @Operation(summary = "Listar tipos de ausencia", description = "Requiere Token de EMPRESA, SUPERVISOR o EMPLEADO. " +
             "Diccionario para formularios (ej: VACACIONES, BAJA_MEDICA).")
     @ApiErroresLectura
@@ -81,7 +81,7 @@ public class AusenciaController {
      * @return ResponseEntity con una lista de los valores del enum {@link EstadoAusencia}.
      */
     @GetMapping("/estados")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR', 'EMPLEADO')")
     @Operation(summary = "Listar estados de ausencia", description = "Requiere Token de EMPRESA, SUPERVISOR o EMPLEADO. " +
             "Diccionario de estados (ej: PENDIENTE, APROBADA).")
     @ApiErroresLectura
@@ -103,7 +103,7 @@ public class AusenciaController {
      * @return ResponseEntity con el {@link RespuestaAusenciaDTO} creado y estado 201 (Created).
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Solicitar nueva ausencia (con archivo opcional)",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Permite enviar los datos de la ausencia (JSON) " +
@@ -135,7 +135,7 @@ public class AusenciaController {
      * @return ResponseEntity con la lista de {@link RespuestaAusenciaDTO} del empleado autenticado.
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Mis solicitudes de ausencia",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Recupera el historial de ausencias solicitadas " +
@@ -163,7 +163,7 @@ public class AusenciaController {
      * @return ResponseEntity con el {@link RespuestaAusenciaDTO} actualizado.
      */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Actualizar mi solicitud de ausencia",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Permite modificar datos o reemplazar el " +
@@ -199,7 +199,7 @@ public class AusenciaController {
      * @return ResponseEntity con cuerpo vacío y estado 204 (No Content).
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Cancelar mi solicitud de ausencia",
             description = "Requiere Token de EMPLEADO (o SUPERVISOR). Elimina una solicitud propia siempre que aún no " +
@@ -227,7 +227,7 @@ public class AusenciaController {
      * @return ResponseEntity con la lista de {@link RespuestaAusenciaDTO} permitidas.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Bandeja de revisión de ausencias",
             description = "Requiere Token de EMPRESA o SUPERVISOR. La EMPRESA ve todas las solicitudes; el SUPERVISOR " +
@@ -254,7 +254,7 @@ public class AusenciaController {
      * @return ResponseEntity con el {@link RespuestaAusenciaDTO} actualizado tras la revisión.
      */
     @PutMapping("/{id}/revision")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR')")
     @Operation(
             summary = "Aprobar o Denegar ausencia",
             description = "Requiere Token de EMPRESA o SUPERVISOR. Procesa una solicitud cambiando su estado a " +
