@@ -160,7 +160,21 @@ Una vez que la aplicación esté corriendo (ya sea en tu entorno local con Maven
 `http://localhost:8080/swagger-ui/index.html`
  
 *(Nota: Para probar los endpoints protegidos, primero debes usar el endpoint de Login y pegar el token JWT resultante en el botón "Authorize").*
- 
+
+---
+
+## Matriz de Acceso (Seguridad)
+
+Todos los endpoints de la API están protegidos mediante `@PreAuthorize` con control de acceso basado en roles (RBAC). Los tres roles disponibles son `EMPRESA`, `SUPERVISOR` y `EMPLEADO`.
+
+| Nivel de acceso | Roles permitidos | Endpoints |
+|---|---|---|
+| **Solo EMPRESA** | `EMPRESA` | `POST /api/empleados`, `PUT /api/empleados/{id}`, `POST /api/empleados/{id}/baja`, `POST /api/empleados/{id}/readmitir`, `PUT /api/empleados/{id}/reset-password`, `POST /api/turnos`, `PUT /api/turnos/{id}`, `DELETE /api/turnos/{id}`, `GET /api/empresas/me`, `PUT /api/empresas/me`, `PUT /api/empresas/me/contrasena`, `DELETE /api/empresas/me` |
+| **Gestión de equipo** | `EMPRESA`, `SUPERVISOR` | `POST /api/asignaciones`, `GET /api/asignaciones`, `PUT /api/asignaciones/{id}`, `DELETE /api/asignaciones/{id}`, `GET /api/turnos`, `GET /api/estadisticas/**`, `PUT /api/ausencias/{id}/revision`, `GET /api/ausencias`, `PUT /api/fichajes/{id}/modificar` |
+| **Perfil propio** | `EMPLEADO`, `SUPERVISOR` | `GET /api/empleados/me`, `PUT /api/empleados/me/contrasena`, `GET /api/asignaciones/me`, `GET /api/ausencias/me`, `POST /api/ausencias`, `PUT /api/ausencias/{id}`, `DELETE /api/ausencias/{id}`, `POST /api/fichajes/entrada`, `PUT /api/fichajes/salida`, `GET /api/fichajes/estado-actual` |
+| **Consulta general** | `EMPRESA`, `SUPERVISOR`, `EMPLEADO` | `GET /api/fichajes`, `GET /api/reportes/**`, `GET /api/ausencias/tipos`, `GET /api/ausencias/estados`, `GET /api/ausencias/justificantes/{nombreArchivo}`, `GET /api/asignaciones/modalidades`, `GET /api/empleados/roles` |
+| **Público** | Sin autenticación | `POST /api/auth/login-empresa`, `POST /api/auth/login-empleado`, `POST /api/empresas/registro`, `/swagger-ui/**`, `/v3/api-docs/**` |
+
 ---
  
 ## Versionado

@@ -233,7 +233,7 @@ public class EmpleadoController {
      * @return ResponseEntity con el {@link RespuestaEmpleadoDTO} que representa el perfil del usuario logueado.
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Obtener mi perfil (Empleado)",
             description = "Requiere Token de EMPLEADO o SUPERVISOR. Devuelve la información personal y contractual del empleado autenticado."
@@ -258,7 +258,7 @@ public class EmpleadoController {
      * @return ResponseEntity con cuerpo vacío y estado 204 (No Content) tras el cambio exitoso.
      */
     @PutMapping("/me/contrasena")
-    @PreAuthorize("hasRole('EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPLEADO', 'SUPERVISOR')")
     @Operation(
             summary = "Cambiar mi contraseña (Empleado)",
             description = "Requiere Token de EMPLEADO o SUPERVISOR. Permite al empleado autenticado cambiar su contraseña de acceso personal.",
@@ -287,7 +287,7 @@ public class EmpleadoController {
      * @return ResponseEntity con una lista de los posibles valores del enum {@link RolEmpleado}.
      */
     @GetMapping("/roles")
-    @PreAuthorize("hasAnyRole('EMPRESA', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('EMPRESA', 'SUPERVISOR', 'EMPLEADO')")
     @Operation(
             summary = "Listar roles disponibles",
             description = "Requiere Token de EMPRESA o SUPERVISOR. Sirve como diccionario para rellenar desplegables en el Frontend."
