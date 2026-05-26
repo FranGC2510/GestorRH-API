@@ -4,6 +4,7 @@ import com.gestorrh.api.dto.turno.PeticionTurnoDTO;
 import com.gestorrh.api.dto.turno.RespuestaTurnoDTO;
 import com.gestorrh.api.entity.Empresa;
 import com.gestorrh.api.entity.Turno;
+import com.gestorrh.api.repository.EmpleadoRepository;
 import com.gestorrh.api.repository.EmpresaRepository;
 import com.gestorrh.api.repository.TurnoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +36,9 @@ class TurnoServiceTest {
 
     @Mock
     private EmpresaRepository empresaRepository;
+
+    @Mock
+    private EmpleadoRepository empleadoRepository;
 
     @InjectMocks
     private TurnoService turnoService;
@@ -51,6 +57,10 @@ class TurnoServiceTest {
 
         lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         lenient().when(authentication.getName()).thenReturn(EMAIL_EMPRESA_AUTH);
+
+        GrantedAuthority authority = mock(GrantedAuthority.class);
+        lenient().when(authority.getAuthority()).thenReturn("ROLE_EMPRESA");
+        lenient().doReturn(Collections.singletonList(authority)).when(authentication).getAuthorities();
 
         SecurityContextHolder.setContext(securityContext);
     }

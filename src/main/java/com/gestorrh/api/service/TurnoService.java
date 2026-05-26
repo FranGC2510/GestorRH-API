@@ -8,9 +8,11 @@ import com.gestorrh.api.repository.EmpresaRepository;
 import com.gestorrh.api.repository.TurnoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.gestorrh.api.repository.EmpleadoRepository;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -39,6 +41,7 @@ public class TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final EmpresaRepository empresaRepository;
+    private final EmpleadoRepository empleadoRepository;
 
     /**
      * Crea un nuevo tipo de turno dentro del catálogo de la empresa actualmente autenticada.
@@ -163,9 +166,19 @@ public class TurnoService {
      * @throws EntityNotFoundException Si no se encuentra ninguna empresa con el correo electrónico del contexto de seguridad.
      */
     private Empresa obtenerEmpresaAutenticada() {
-        String correoEmpresaAuth = SecurityContextHolder.getContext().getAuthentication().getName();
-        return empresaRepository.findByEmail(correoEmpresaAuth)
-                .orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada en el sistema"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String emailAuth = auth.getName();
+        boolean esEmpresa = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_EMPRESA"));
+
+        if (esEmpresa) {
+            return empresaRepository.findByEmail(emailAuth)
+                    .orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada en el sistema"));
+        } else {
+            return empleadoRepository.findByEmail(emailAuth)
+                    .orElseThrow(() -> new EntityNotFoundException("Empleado no encontrado en el sistema"))
+                    .getEmpresa();
+        }
     }
 
     /**
