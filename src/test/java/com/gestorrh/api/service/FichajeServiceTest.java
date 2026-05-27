@@ -338,6 +338,7 @@ class FichajeServiceTest {
             
             when(empleadoRepository.findByEmail("supervisor@test.com")).thenReturn(Optional.of(supervisor));
             when(fichajeRepository.findByEmpleadoEmpresaIdEmpresaAndFechaBetween(anyLong(), any(), any())).thenReturn(List.of(f1));
+            when(empleadoRepository.findById(1L)).thenReturn(Optional.of(empIT));
 
             List<RespuestaFichajeDTO> resultado = fichajeService.consultarFichajes(hoy, hoy, 1L);
 
@@ -350,18 +351,38 @@ class FichajeServiceTest {
         void consultarFichajes_Supervisor_FiltroDenegado() {
             mockAuth("supervisor@test.com", "ROLE_SUPERVISOR");
             LocalDate hoy = LocalDate.now();
-            
+
             Empleado supervisor = Empleado.builder().idEmpleado(10L).email("supervisor@test.com").departamento("IT").empresa(empresaPrueba).build();
             Empleado empRRHH = Empleado.builder().idEmpleado(2L).departamento("RRHH").empresa(empresaPrueba).nombre("R").apellidos("H").build();
-            Fichaje f2 = Fichaje.builder().idFichaje(2L).empleado(empRRHH).fecha(hoy).build();
-            
-            when(empleadoRepository.findByEmail("supervisor@test.com")).thenReturn(Optional.of(supervisor));
-            when(fichajeRepository.findByEmpleadoEmpresaIdEmpresaAndFechaBetween(anyLong(), any(), any())).thenReturn(List.of(f2));
 
-            RuntimeException ex = assertThrows(RuntimeException.class, () -> 
-                fichajeService.consultarFichajes(hoy, hoy, 2L)
+            when(empleadoRepository.findByEmail("supervisor@test.com")).thenReturn(Optional.of(supervisor));
+            when(fichajeRepository.findByEmpleadoEmpresaIdEmpresaAndFechaBetween(anyLong(), any(), any())).thenReturn(Collections.emptyList());
+            when(empleadoRepository.findById(2L)).thenReturn(Optional.of(empRRHH));
+
+            RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                    fichajeService.consultarFichajes(hoy, hoy, 2L)
             );
             assertTrue(ex.getMessage().contains("Acceso denegado"));
+        }
+
+        @Test
+        @DisplayName("Supervisor: Filtra por empleado de su departamento sin fichajes en el rango — debe devolver lista vacía, nunca 403")
+        void consultarFichajes_Supervisor_FiltroPermitido_SinFichajesEnRango_DevuelveListaVacia() {
+            mockAuth("supervisor@test.com", "ROLE_SUPERVISOR");
+            LocalDate hoy = LocalDate.now();
+
+            Empleado supervisor = Empleado.builder().idEmpleado(10L).email("supervisor@test.com").departamento("IT").empresa(empresaPrueba).build();
+            Empleado empIT = Empleado.builder().idEmpleado(1L).departamento("IT").empresa(empresaPrueba).nombre("I").apellidos("T").build();
+
+            when(empleadoRepository.findByEmail("supervisor@test.com")).thenReturn(Optional.of(supervisor));
+            when(fichajeRepository.findByEmpleadoEmpresaIdEmpresaAndFechaBetween(anyLong(), any(), any())).thenReturn(Collections.emptyList());
+            when(empleadoRepository.findById(1L)).thenReturn(Optional.of(empIT));
+
+            List<RespuestaFichajeDTO> resultado = assertDoesNotThrow(() ->
+                    fichajeService.consultarFichajes(hoy, hoy, 1L)
+            );
+
+            assertTrue(resultado.isEmpty());
         }
 
         @Test

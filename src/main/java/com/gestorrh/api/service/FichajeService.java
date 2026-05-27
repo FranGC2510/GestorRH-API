@@ -344,9 +344,14 @@ public class FichajeService {
                 .collect(Collectors.toList());
 
         if (empleadoIdFiltro != null) {
-            boolean accesoPermitido = fichajes.stream().anyMatch(f -> f.getEmpleado().getIdEmpleado().equals(empleadoIdFiltro))
-                    || supervisor.getIdEmpleado().equals(empleadoIdFiltro);
-            if (!accesoPermitido) {
+            boolean esElPropiaSupervisor = supervisor.getIdEmpleado().equals(empleadoIdFiltro);
+            boolean perteneceAlDepartamento = empleadoRepository.findById(empleadoIdFiltro)
+                    .map(e -> e.getEmpresa().getIdEmpresa().equals(supervisor.getEmpresa().getIdEmpresa())
+                            && e.getDepartamento() != null
+                            && e.getDepartamento().equalsIgnoreCase(supervisor.getDepartamento()))
+                    .orElse(false);
+
+            if (!esElPropiaSupervisor && !perteneceAlDepartamento) {
                 throw new RuntimeException("Acceso denegado: Solo puedes ver los fichajes de los empleados de tu departamento (" + supervisor.getDepartamento() + ").");
             }
             return fichajes.stream().filter(f -> f.getEmpleado().getIdEmpleado().equals(empleadoIdFiltro)).collect(Collectors.toList());
