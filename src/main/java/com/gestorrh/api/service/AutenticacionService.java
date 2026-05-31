@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -99,6 +100,7 @@ public class AutenticacionService {
      * @return {@link RespuestaLoginDTO} con el token de acceso y la información de perfil para el frontend.
      * @throws RuntimeException Si las credenciales fallan o si el empleado tiene el acceso bloqueado por cese laboral.
      */
+    @Transactional(readOnly = true)
     public RespuestaLoginDTO loginEmpleado(PeticionLoginDTO peticion) {
 
         Empleado empleado = empleadoRepository.findByEmail(peticion.getEmail())
