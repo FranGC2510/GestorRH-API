@@ -123,6 +123,7 @@ public class AutenticacionService {
         datosExtra.put("rol", empleado.getRol().name());
         datosExtra.put("id", empleado.getIdEmpleado());
         datosExtra.put("idEmpresa", empleado.getEmpresa().getIdEmpresa());
+        datosExtra.put("nombreEmpresa", empleado.getEmpresa().getNombre());
 
         String token = servicioJwt.generarToken(empleado.getEmail(), datosExtra);
 
@@ -133,6 +134,7 @@ public class AutenticacionService {
                 .rol(empleado.getRol().name())
                 .id(empleado.getIdEmpleado())
                 .nombre(empleado.getNombre() + " " + empleado.getApellidos())
+                .nombreEmpresa(empleado.getEmpresa().getNombre())
                 .build();
     }
 }
