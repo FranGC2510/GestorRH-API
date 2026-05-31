@@ -98,6 +98,16 @@ public class ServicioJwt {
     }
 
     /**
+     * Recupera el nombre de la empresa asociada al usuario desde el token JWT.
+     *
+     * @param token El token JWT del que se desea extraer el nombre de empresa.
+     * @return El nombre de la empresa, o {@code null} si no está presente.
+     */
+    public String extraerNombreEmpresa(String token) {
+        return extraerTodosLosClaims(token).get("nombreEmpresa", String.class);
+    }
+
+    /**
      * Valida la integridad y vigencia de un token JWT.
      * <p>
      * Comprueba que la firma del token sea correcta utilizando la clave secreta y que

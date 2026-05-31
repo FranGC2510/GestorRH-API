@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO (Data Transfer Object) para enviar la respuesta de un login exitoso.
- * Devuelve el token y el rol.
+ * Devuelve el token, el rol, los datos básicos del usuario y el nombre de la empresa asociada.
  */
 @Data
 @Builder
@@ -20,4 +20,5 @@ public class RespuestaLoginDTO {
 
     private Long id;
     private String nombre;
+    private String nombreEmpresa;
 }
