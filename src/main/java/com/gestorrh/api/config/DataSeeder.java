@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -354,7 +356,9 @@ public class DataSeeder implements CommandLineRunner {
         // Entrada puntual hoy
         fichajeRepository.save(Fichaje.builder()
                 .empleado(juan).asignacion(asigHoyJuan).fecha(hoy)
-                .horaEntrada(hoy.atTime(8, 3))
+                .horaEntrada(hoy.atTime(8, 3)
+                        .atZone(ZoneId.of("Europe/Madrid"))
+                        .toOffsetDateTime())
                 .latitudEntrada(LAT_SEDE + OFFSETS_GPS[1][0])
                 .longitudEntrada(LON_SEDE + OFFSETS_GPS[1][1])
                 .build());
@@ -381,7 +385,9 @@ public class DataSeeder implements CommandLineRunner {
             fichajeRepository.save(Fichaje.builder()
                     .empleado(emp).asignacion(asigHoy).fecha(hoy)
                     .horaEntrada(hoy.atTime(turnoHoy.getHoraInicio().getHour(),
-                            turnoHoy.getHoraInicio().getMinute() + (i % 3)))
+                                    turnoHoy.getHoraInicio().getMinute() + (i % 3))
+                            .atZone(ZoneId.of("Europe/Madrid"))
+                            .toOffsetDateTime())
                     .latitudEntrada(LAT_SEDE + OFFSETS_GPS[Math.min(i, OFFSETS_GPS.length - 1)][0])
                     .longitudEntrada(LON_SEDE + OFFSETS_GPS[Math.min(i, OFFSETS_GPS.length - 1)][1])
                     .build());
@@ -401,7 +407,7 @@ public class DataSeeder implements CommandLineRunner {
 
         // ── Calcular hora de entrada ───────────────────────────────────────────
         LocalTime inicioTurno = turno.getHoraInicio();
-        LocalDateTime horaEntrada;
+        OffsetDateTime horaEntrada;
         String incidencias = null;
 
         // ¿Toca un retraso hoy? Distribución determinista: cada N días laborables
@@ -419,17 +425,21 @@ public class DataSeeder implements CommandLineRunner {
         if (esRetraso) {
             // Retraso entre 20 y 45 minutos (supera los 15 de cortesía)
             int minutosRetraso = 20 + ((idxEmpleado * fecha.getDayOfMonth() * 3) % 26);
-            horaEntrada = fecha.atTime(inicioTurno.plusMinutes(minutosRetraso));
+            horaEntrada = fecha.atTime(inicioTurno.plusMinutes(minutosRetraso))
+                    .atZone(ZoneId.of("Europe/Madrid"))
+                    .toOffsetDateTime();
             incidencias = "Retraso en la entrada. Fichó a las " + horaEntrada.toLocalTime() + ". ";
         } else {
             // Entrada puntual: entre -3 y +5 minutos del inicio del turno (determinista)
             int desfase = ((idxEmpleado + fecha.getDayOfMonth()) % 9) - 3;
-            horaEntrada = fecha.atTime(inicioTurno.plusMinutes(desfase));
+            horaEntrada = fecha.atTime(inicioTurno.plusMinutes(desfase))
+                    .atZone(ZoneId.of("Europe/Madrid"))
+                    .toOffsetDateTime();
         }
 
         // ── Calcular hora de salida ────────────────────────────────────────────
         LocalTime finTurno = turno.getHoraFin();
-        LocalDateTime horaSalida;
+        OffsetDateTime horaSalida;
 
         // El turno de tarde tiene horaFin = 00:00, que en LocalTime es medianoche del mismo día.
         // Para calcular la salida lo tratamos como 23:59 del mismo día más 1 min.
@@ -437,7 +447,9 @@ public class DataSeeder implements CommandLineRunner {
 
         if (esTurnoNocturno) {
             // Salida entre 23:55 y 00:05 del día siguiente — simplificamos a 23:58
-            horaSalida = fecha.atTime(23, 58);
+            horaSalida = fecha.atTime(23, 58)
+                    .atZone(ZoneId.of("Europe/Madrid"))
+                    .toOffsetDateTime();
         } else {
             // Salida puntual: entre -2 y +8 minutos del fin del turno
             int desfaseSalida = ((idxEmpleado * 3 + fecha.getDayOfMonth()) % 11) - 2;
@@ -445,11 +457,15 @@ public class DataSeeder implements CommandLineRunner {
             boolean salidaAnticipada = ((idxEmpleado + fecha.getDayOfYear()) % 20 == 0);
             if (salidaAnticipada) {
                 int minutosAntes = 20 + (idxEmpleado % 11);
-                horaSalida = fecha.atTime(finTurno.minusMinutes(minutosAntes));
+                horaSalida = fecha.atTime(finTurno.minusMinutes(minutosAntes))
+                        .atZone(ZoneId.of("Europe/Madrid"))
+                        .toOffsetDateTime();
                 String incSalida = "Salida anticipada a las " + horaSalida.toLocalTime() + ". ";
                 incidencias = (incidencias == null) ? incSalida : incidencias + " | " + incSalida;
             } else {
-                horaSalida = fecha.atTime(finTurno.plusMinutes(desfaseSalida));
+                horaSalida = fecha.atTime(finTurno.plusMinutes(desfaseSalida))
+                        .atZone(ZoneId.of("Europe/Madrid"))
+                        .toOffsetDateTime();
             }
         }
 

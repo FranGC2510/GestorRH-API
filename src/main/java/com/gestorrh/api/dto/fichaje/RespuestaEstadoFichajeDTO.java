@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * DTO que consolida el estado actual de la jornada laboral de un empleado.
@@ -29,8 +29,8 @@ public class RespuestaEstadoFichajeDTO {
     @Schema(description = "ID del fichaje abierto hoy, null si no está trabajando", example = "105")
     private Long idFichajeAbierto;
 
-    @Schema(description = "Hora exacta en la que el empleado registró su entrada hoy", example = "2026-04-15T08:30:00")
-    private LocalDateTime horaEntrada;
+    @Schema(description = "Hora exacta en la que el empleado registró su entrada hoy", example = "2026-04-15T08:30:00Z")
+    private OffsetDateTime horaEntrada;
 
     @Schema(description = "Indica si el empleado tiene un turno planificado para el día de hoy", example = "true")
     private Boolean tieneTurnoHoy;

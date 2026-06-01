@@ -30,10 +30,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -127,7 +126,10 @@ class FichajeServiceTest {
             mockAuth("empleado@test.com", "ROLE_EMPLEADO");
             PeticionFichajeEntradaDTO peticion = new PeticionFichajeEntradaDTO(40.4168, -3.7038);
 
-            Turno turno = Turno.builder().horaInicio(LocalTime.now().minusMinutes(30)).descripcion("Turno Mañana").build();
+            Turno turno = Turno.builder()
+                    .horaInicio(OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(30).toLocalTime())
+                    .descripcion("Turno Mañana")
+                    .build();
             AsignacionTurno asignacion = AsignacionTurno.builder().turno(turno).modalidad(ModalidadTurno.TELETRABAJO).build();
 
             when(empleadoRepository.findByEmail("empleado@test.com")).thenReturn(Optional.of(empleadoPrueba));
@@ -215,7 +217,7 @@ class FichajeServiceTest {
             Fichaje fichajeAbierto = Fichaje.builder()
                     .idFichaje(1L)
                     .empleado(empleadoPrueba)
-                    .horaEntrada(LocalDateTime.now().minusHours(8))
+                    .horaEntrada(OffsetDateTime.now(ZoneOffset.UTC).minusHours(8))
                     .build();
 
             when(empleadoRepository.findByEmail("empleado@test.com")).thenReturn(Optional.of(empleadoPrueba));
@@ -477,7 +479,7 @@ class FichajeServiceTest {
         void modificarFichaje_Empresa_Exito() {
             mockAuth("empresa@test.com", "ROLE_EMPRESA");
             PeticionModificacionFichajeDTO peticion = new PeticionModificacionFichajeDTO(
-                    LocalDateTime.now(), null, "Error del empleado"
+                    OffsetDateTime.now(ZoneOffset.UTC), null, "Error del empleado"
             );
             
             Fichaje fichaje = Fichaje.builder().idFichaje(1L).empleado(empleadoPrueba).build();
@@ -536,7 +538,7 @@ class FichajeServiceTest {
             when(fichajeRepository.save(any(Fichaje.class))).thenAnswer(i -> i.getArgument(0));
 
             PeticionModificacionFichajeDTO peticion = new PeticionModificacionFichajeDTO(
-                    null, LocalDateTime.now(), "Ajuste"
+                    null, OffsetDateTime.now(ZoneOffset.UTC), "Ajuste"
             );
 
             RespuestaFichajeDTO resultado = fichajeService.modificarFichajeManual(1L, peticion);

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Entidad que registra las entradas y salidas diarias de un empleado.
@@ -43,7 +43,7 @@ public class Fichaje {
 
     @NotNull(message = "La hora de entrada es obligatoria")
     @Column(name = "hora_entrada", nullable = false)
-    private LocalDateTime horaEntrada;
+    private OffsetDateTime horaEntrada;
 
     @Column(name = "latitud_entrada")
     private Double latitudEntrada;
@@ -52,7 +52,7 @@ public class Fichaje {
     private Double longitudEntrada;
 
     @Column(name = "hora_salida")
-    private LocalDateTime horaSalida;
+    private OffsetDateTime horaSalida;
 
     @Column(name = "latitud_salida")
     private Double latitudSalida;

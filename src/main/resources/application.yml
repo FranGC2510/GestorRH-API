@@ -4,13 +4,16 @@ spring:
   profiles:
     active: dev
 
-  # LOGS
   security:
     user:
       name: usuario_ignorado
       password: sin_uso
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
 
   # CONFIGURACIÓN DE SUBIDA DE ARCHIVOS
   servlet:

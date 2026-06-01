@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * DTO para la respuesta con los detalles de un fichaje.
@@ -25,8 +25,8 @@ public class RespuestaFichajeDTO {
     private String descripcionTurno;
 
     private LocalDate fecha;
-    private LocalDateTime horaEntrada;
-    private LocalDateTime horaSalida;
+    private OffsetDateTime horaEntrada;
+    private OffsetDateTime horaSalida;
 
     private String incidencias;
 }

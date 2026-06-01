@@ -17,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -220,7 +221,8 @@ public class ReporteService {
             minutosTeoricos = TurnoService.calcularMinutosTurno(inicioTurno, finTurno);
 
             long minutosTotalesEfectivos = minutosTotales;
-            LocalDateTime fechaHoraInicioTurno = f.getFecha().atTime(inicioTurno);
+            OffsetDateTime fechaHoraInicioTurno = f.getFecha().atTime(inicioTurno)
+                    .atOffset(ZoneOffset.UTC);
 
             if (f.getHoraEntrada().isBefore(fechaHoraInicioTurno)) {
                 long minutosTemprano = Duration.between(f.getHoraEntrada(), fechaHoraInicioTurno).toMinutes();

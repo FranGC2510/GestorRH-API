@@ -3,7 +3,7 @@ package com.gestorrh.api.dto.error;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Builder
 public class RespuestaErrorDTO {
-    private LocalDateTime timestamp;
+    private OffsetDateTime timestamp;
     private int status;
     private String errorCode;
     private String message;

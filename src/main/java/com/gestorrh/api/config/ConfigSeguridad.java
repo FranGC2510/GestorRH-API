@@ -20,7 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 /**
  * Clase de configuración global de seguridad de Spring Security.
@@ -41,7 +42,8 @@ public class ConfigSeguridad {
     private final FiltroJwt filtroJwt;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .findAndRegisterModules();
+            .findAndRegisterModules()
+            .disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     /**
      * Define el bean para el codificador de contraseñas de la aplicación.
@@ -71,7 +73,7 @@ public class ConfigSeguridad {
                     : "No autenticado: token ausente o inválido";
 
             RespuestaErrorDTO error = RespuestaErrorDTO.builder()
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                     .status(HttpServletResponse.SC_UNAUTHORIZED)
                     .errorCode(tokenCaducado ? "TOKEN_EXPIRADO" : "NO_AUTENTICADO")
                     .message(mensaje)
@@ -93,7 +95,7 @@ public class ConfigSeguridad {
     public AccessDeniedHandler manejadorAccesoDenegado() {
         return (request, response, accessDeniedException) -> {
             RespuestaErrorDTO error = RespuestaErrorDTO.builder()
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                     .status(HttpServletResponse.SC_FORBIDDEN)
                     .errorCode("ACCESO_DENEGADO")
                     .message("No tiene permisos para acceder a este recurso")
