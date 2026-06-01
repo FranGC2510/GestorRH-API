@@ -1,10 +1,6 @@
 package com.gestorrh.api.exception;
 
 import com.gestorrh.api.dto.error.RespuestaErrorDTO;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +50,7 @@ public class GestorExcepciones {
         log.error("Error de VALIDACIÓN en la ruta [{}]: {}", request.getRequestURI(), errores);
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .errorCode("VALIDATION_ERROR")
                 .message("Error en la validación de los datos enviados")
@@ -81,7 +78,7 @@ public class GestorExcepciones {
         log.warn("Violación de regla de NEGOCIO en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .errorCode("BUSINESS_RULE_VIOLATION")
                 .message(ex.getMessage())
@@ -110,7 +107,7 @@ public class GestorExcepciones {
         log.error("Error CRÍTICO no controlado en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .errorCode("INTERNAL_SERVER_ERROR")
                 .message("Ha ocurrido un error inesperado en el servidor")
@@ -139,7 +136,7 @@ public class GestorExcepciones {
         log.warn("Recurso NO ENCONTRADO en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.NOT_FOUND.value())
                 .errorCode("NOT_FOUND")
                 .message(ex.getMessage() != null ? ex.getMessage() : "El recurso solicitado no ha sido encontrado")
@@ -169,7 +166,7 @@ public class GestorExcepciones {
         log.warn("Conflicto de CONCURRENCIA en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.CONFLICT.value())
                 .errorCode("CONFLICT")
                 .message("Los datos han sido modificados por otro usuario mientras los visualizabas. Por favor, recarga la página e inténtalo de nuevo.")

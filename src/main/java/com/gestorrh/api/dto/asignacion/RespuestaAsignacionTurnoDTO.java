@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.LocalTime;
 
 /**
@@ -38,6 +38,6 @@ public class RespuestaAsignacionTurnoDTO {
     private ModalidadTurno modalidad;
 
     private String motivoCambio;
-    private LocalDateTime fechaCambio;
+    private OffsetDateTime fechaCambio;
     private String responsableCambio;
 }

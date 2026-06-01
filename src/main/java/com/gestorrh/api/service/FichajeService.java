@@ -19,7 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,7 @@ public class FichajeService {
         Empleado empleado = obtenerEmpleadoAutenticado();
         validarSedeConfigurada(empleado.getEmpresa());
         LocalDate hoy = LocalDate.now();
-        LocalDateTime ahora = LocalDateTime.now();
+        OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<Fichaje> abiertos = fichajeRepository.findByEmpleadoIdEmpleadoAndFechaAndHoraSalidaIsNull(empleado.getIdEmpleado(), hoy);
         if (!abiertos.isEmpty()) {
@@ -112,7 +113,7 @@ public class FichajeService {
     public RespuestaFichajeDTO ficharSalida(PeticionFichajeSalidaDTO peticion) {
         Empleado empleado = obtenerEmpleadoAutenticado();
         LocalDate hoy = LocalDate.now();
-        LocalDateTime ahora = LocalDateTime.now();
+        OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<Fichaje> abiertos = fichajeRepository.findByEmpleadoIdEmpleadoAndFechaAndHoraSalidaIsNull(empleado.getIdEmpleado(), hoy);
         if (abiertos.isEmpty()) {
@@ -251,7 +252,7 @@ public class FichajeService {
                 .build();
     }
 
-    // MÉTODOS PRIVADOS DE REFACTORIZACIÓN (CLEAN CODE)
+    // MÉTODOS PRIVADOS
 
     private Empleado obtenerEmpleadoAutenticado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -286,9 +287,12 @@ public class FichajeService {
         }
     }
 
-    private String evaluarRetrasoEntrada(AsignacionTurno asignacion, LocalDateTime ahora, Empleado empleado) {
+    private String evaluarRetrasoEntrada(AsignacionTurno asignacion, OffsetDateTime ahora, Empleado empleado) {
         if (asignacion != null) {
-            LocalDateTime horaInicioTurno = LocalDate.now().atTime(asignacion.getTurno().getHoraInicio());
+            OffsetDateTime horaInicioTurno = LocalDate.now()
+                    .atTime(asignacion.getTurno().getHoraInicio())
+                    .atOffset(ZoneOffset.UTC);
+
             if (ahora.isAfter(horaInicioTurno.plusMinutes(MINUTOS_CORTESIA))) {
                 log.info("Fichaje ENTRADA (CON RETRASO): El empleado '{}' ha fichado a las {}.", empleado.getEmail(), ahora.toLocalTime());
                 return "Retraso en la entrada. Fichó a las " + ahora.toLocalTime() + ". ";
@@ -302,11 +306,13 @@ public class FichajeService {
         }
     }
 
-    private String evaluarSalidaAnticipada(AsignacionTurno asignacion, LocalDateTime ahora, Empleado empleado, String incidenciasPrevias) {
+    private String evaluarSalidaAnticipada(AsignacionTurno asignacion, OffsetDateTime ahora, Empleado empleado, String incidenciasPrevias) {
         String incidenciasBase = (incidenciasPrevias == null) ? "" : incidenciasPrevias;
 
         if (asignacion != null) {
-            LocalDateTime horaFinTurno = LocalDate.now().atTime(asignacion.getTurno().getHoraFin());
+            OffsetDateTime horaFinTurno = LocalDate.now()
+                    .atTime(asignacion.getTurno().getHoraFin())
+                    .atOffset(ZoneOffset.UTC);
 
             if (ahora.isBefore(horaFinTurno.minusMinutes(MINUTOS_CORTESIA))) {
                 String nuevaIncidencia = "Salida anticipada a las " + ahora.toLocalTime() + ". ";

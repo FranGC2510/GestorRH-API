@@ -19,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -75,8 +77,8 @@ class ReporteServiceTest {
                 .empleado(empleadoPrueba)
                 .asignacion(asignacion)
                 .fecha(hoy)
-                .horaEntrada(hoy.atTime(8, 0))
-                .horaSalida(hoy.atTime(15, 10))
+                .horaEntrada(hoy.atTime(8, 0).atOffset(ZoneOffset.UTC))
+                .horaSalida(hoy.atTime(15, 10).atOffset(ZoneOffset.UTC))
                 .build();
 
         lenient().when(fichajeRepository.findByEmpleadoIdEmpleadoAndFechaBetween(anyLong(), any(), any()))
@@ -101,8 +103,8 @@ class ReporteServiceTest {
                 .empleado(empleadoPrueba)
                 .asignacion(asignacion)
                 .fecha(hoy)
-                .horaEntrada(hoy.atTime(8, 0))
-                .horaSalida(hoy.atTime(15, 30))
+                .horaEntrada(hoy.atTime(8, 0).atOffset(ZoneOffset.UTC))
+                .horaSalida(hoy.atTime(15, 30).atOffset(ZoneOffset.UTC))
                 .build();
 
         lenient().when(fichajeRepository.findByEmpleadoIdEmpleadoAndFechaBetween(anyLong(), any(), any()))

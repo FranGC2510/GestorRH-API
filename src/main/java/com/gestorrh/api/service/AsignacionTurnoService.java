@@ -13,8 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -184,7 +184,7 @@ public class AsignacionTurnoService {
         asignacionExistente.setModalidad(peticion.getModalidad());
 
         asignacionExistente.setMotivoCambio(peticion.getMotivoCambio());
-        asignacionExistente.setFechaCambio(LocalDateTime.now());
+        asignacionExistente.setFechaCambio(OffsetDateTime.now(ZoneOffset.UTC));
         asignacionExistente.setResponsableCambio(emailAuth);
 
         asignacionExistente = asignacionRepository.save(asignacionExistente);

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Entidad que cruza a un Empleado con un Turno en una fecha concreta.
@@ -52,7 +52,7 @@ public class AsignacionTurno {
     private String motivoCambio;
 
     @Column(name = "fecha_cambio")
-    private LocalDateTime fechaCambio;
+    private OffsetDateTime fechaCambio;
 
     @Column(name = "responsable_cambio", length = 100)
     private String responsableCambio;
