@@ -5,10 +5,7 @@ import com.gestorrh.api.dto.ausencia.PeticionRevisionAusenciaDTO;
 import com.gestorrh.api.dto.ausencia.RespuestaAusenciaDTO;
 import com.gestorrh.api.entity.*;
 import com.gestorrh.api.entity.enums.EstadoAusencia;
-import com.gestorrh.api.repository.AsignacionTurnoRepository;
-import com.gestorrh.api.repository.AusenciaRepository;
-import com.gestorrh.api.repository.EmpleadoRepository;
-import com.gestorrh.api.repository.EmpresaRepository;
+import com.gestorrh.api.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +39,7 @@ public class AusenciaService {
     private final EmpresaRepository empresaRepository;
     private final AsignacionTurnoRepository asignacionRepository;
     private final FileStorageService fileStorageService;
+    private final FichajeRepository fichajeRepository;
 
     /**
      * Permite a un empleado registrar una nueva solicitud de ausencia.
@@ -56,6 +54,7 @@ public class AusenciaService {
         Empleado empleadoLogueado = obtenerEmpleadoAutenticado();
         validarFechas(peticion.getFechaInicio(), peticion.getFechaFin());
         validarSolapamientoAusencias(empleadoLogueado.getIdEmpleado(), peticion.getFechaInicio(), peticion.getFechaFin(), null);
+        validarQueNoHayFichajesEnRango(empleadoLogueado.getIdEmpleado(), peticion.getFechaInicio(), peticion.getFechaFin());
 
         String nombreArchivoGenerado = null;
         if (archivo != null && !archivo.isEmpty()) {
@@ -134,6 +133,7 @@ public class AusenciaService {
 
         validarFechas(peticion.getFechaInicio(), peticion.getFechaFin());
         validarSolapamientoAusencias(empleadoLogueado.getIdEmpleado(), peticion.getFechaInicio(), peticion.getFechaFin(), idAusencia);
+        validarQueNoHayFichajesEnRango(empleadoLogueado.getIdEmpleado(), peticion.getFechaInicio(), peticion.getFechaFin());
 
         boolean deseaEliminar = Boolean.TRUE.equals(peticion.getEliminarJustificante());
 
@@ -386,6 +386,24 @@ public class AusenciaService {
 
         if (!solapadas.isEmpty()) {
             throw new RuntimeException("No puedes solicitar esta ausencia: ya tienes otra solicitud (Pendiente o Aprobada) que coincide con estas fechas.");
+        }
+    }
+
+    /**
+     * Verifica que el empleado no tenga fichajes registrados en el rango de fechas solicitado.
+     * Si existe al menos uno, la solicitud de ausencia se rechaza para evitar inconsistencias
+     * entre los registros de jornada y las ausencias.
+     *
+     * @param idEmpleado ID del trabajador.
+     * @param inicio Fecha de inicio del rango.
+     * @param fin Fecha de fin del rango.
+     */
+    private void validarQueNoHayFichajesEnRango(Long idEmpleado, java.time.LocalDate inicio, java.time.LocalDate fin) {
+        List<com.gestorrh.api.entity.Fichaje> fichajesExistentes =
+                fichajeRepository.findByEmpleadoIdEmpleadoAndFechaBetween(idEmpleado, inicio, fin);
+
+        if (!fichajesExistentes.isEmpty()) {
+            throw new RuntimeException("No puedes solicitar una ausencia en fechas en las que ya has fichado.");
         }
     }
 

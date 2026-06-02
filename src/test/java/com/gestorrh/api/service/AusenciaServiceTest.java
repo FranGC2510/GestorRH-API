@@ -6,10 +6,7 @@ import com.gestorrh.api.dto.ausencia.RespuestaAusenciaDTO;
 import com.gestorrh.api.entity.*;
 import com.gestorrh.api.entity.enums.EstadoAusencia;
 import com.gestorrh.api.entity.enums.TipoAusencia;
-import com.gestorrh.api.repository.AsignacionTurnoRepository;
-import com.gestorrh.api.repository.AusenciaRepository;
-import com.gestorrh.api.repository.EmpleadoRepository;
-import com.gestorrh.api.repository.EmpresaRepository;
+import com.gestorrh.api.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,6 +41,8 @@ class AusenciaServiceTest {
     private EmpresaRepository empresaRepository;
     @Mock
     private AsignacionTurnoRepository asignacionRepository;
+    @Mock
+    private FichajeRepository fichajeRepository;
 
     // NUEVO MOCK: Necesario porque AusenciaService ahora depende de él
     @Mock
@@ -309,5 +308,70 @@ class AusenciaServiceTest {
         assertNull(respuesta.getJustificante());
         verify(fileStorageService, times(1)).eliminarArchivo("archivo-existente.pdf");
         verify(fileStorageService, never()).guardarArchivo(any());
+    }
+
+    @Test
+    @DisplayName("Crear ausencia falla si el empleado tiene fichajes en el rango de fechas")
+    void crearAusencia_FallaPorFichajesExistentes() {
+        simularAutenticacion(EMAIL_EMPLEADO, "ROLE_EMPLEADO");
+        when(empleadoRepository.findByEmail(EMAIL_EMPLEADO)).thenReturn(Optional.of(empleadoLogueado));
+        when(ausenciaRepository.findAusenciasSolapadas(eq(10L), anyList(), any(), any())).thenReturn(List.of());
+
+        Fichaje fichajeExistente = Fichaje.builder()
+                .idFichaje(1L)
+                .empleado(empleadoLogueado)
+                .fecha(LocalDate.of(2026, 11, 3))
+                .build();
+        when(fichajeRepository.findByEmpleadoIdEmpleadoAndFechaBetween(
+                eq(10L), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of(fichajeExistente));
+
+        PeticionAusenciaDTO peticion = PeticionAusenciaDTO.builder()
+                .tipo(TipoAusencia.VACACIONES)
+                .fechaInicio(LocalDate.of(2026, 11, 1))
+                .fechaFin(LocalDate.of(2026, 11, 5))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> ausenciaService.crearAusencia(peticion, null));
+        assertTrue(ex.getMessage().contains("ya has fichado"));
+        verify(ausenciaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Actualizar ausencia falla si el empleado tiene fichajes en el nuevo rango de fechas")
+    void actualizarMiAusencia_FallaPorFichajesExistentes() {
+        simularAutenticacion(EMAIL_EMPLEADO, "ROLE_EMPLEADO");
+        when(empleadoRepository.findByEmail(EMAIL_EMPLEADO)).thenReturn(Optional.of(empleadoLogueado));
+
+        Ausencia ausenciaSolicitada = Ausencia.builder()
+                .idAusencia(1L)
+                .empleado(empleadoLogueado)
+                .estado(EstadoAusencia.SOLICITADA)
+                .justificante(null)
+                .build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaSolicitada));
+        when(ausenciaRepository.findAusenciasSolapadas(eq(10L), anyList(), any(), any())).thenReturn(List.of());
+
+        Fichaje fichajeExistente = Fichaje.builder()
+                .idFichaje(2L)
+                .empleado(empleadoLogueado)
+                .fecha(LocalDate.of(2026, 11, 3))
+                .build();
+        when(fichajeRepository.findByEmpleadoIdEmpleadoAndFechaBetween(
+                eq(10L), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of(fichajeExistente));
+
+        PeticionAusenciaDTO peticion = PeticionAusenciaDTO.builder()
+                .tipo(TipoAusencia.VACACIONES)
+                .fechaInicio(LocalDate.of(2026, 11, 1))
+                .fechaFin(LocalDate.of(2026, 11, 5))
+                .build();
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> ausenciaService.actualizarMiAusencia(1L, peticion, null));
+        assertTrue(ex.getMessage().contains("ya has fichado"));
+        verify(ausenciaRepository, never()).save(any());
     }
 }
