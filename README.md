@@ -1,7 +1,7 @@
 # GestorRH - API REST
  
 [![CI Pipeline](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml/badge.svg)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-v1.3.0--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.3.0)
+[![Version](https://img.shields.io/badge/version-v1.4.0--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.4.0)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
@@ -170,7 +170,7 @@ Todos los endpoints de la API están protegidos mediante `@PreAuthorize` con con
 | Nivel de acceso | Roles permitidos | Endpoints |
 |---|---|---|
 | **Solo EMPRESA** | `EMPRESA` | `POST /api/empleados`, `PUT /api/empleados/{id}`, `POST /api/empleados/{id}/baja`, `POST /api/empleados/{id}/readmitir`, `PUT /api/empleados/{id}/reset-password`, `POST /api/turnos`, `PUT /api/turnos/{id}`, `DELETE /api/turnos/{id}`, `GET /api/empresas/me`, `PUT /api/empresas/me`, `PUT /api/empresas/me/contrasena`, `DELETE /api/empresas/me` |
-| **Gestión de equipo** | `EMPRESA`, `SUPERVISOR` | `POST /api/asignaciones`, `GET /api/asignaciones`, `PUT /api/asignaciones/{id}`, `DELETE /api/asignaciones/{id}`, `GET /api/turnos`, `GET /api/estadisticas/**`, `PUT /api/ausencias/{id}/revision`, `GET /api/ausencias`, `PUT /api/fichajes/{id}/modificar` |
+| **Gestión de equipo** | `EMPRESA`, `SUPERVISOR` | `POST /api/asignaciones`, `GET /api/asignaciones`, `PUT /api/asignaciones/{id}`, `DELETE /api/asignaciones/{id}`, `GET /api/turnos`, `GET /api/estadisticas/**`, `PUT /api/ausencias/{id}/revision`, `GET /api/ausencias`, `PUT /api/fichajes/{id}/modificar` , `GET /api/empleados`|
 | **Perfil propio** | `EMPLEADO`, `SUPERVISOR` | `GET /api/empleados/me`, `PUT /api/empleados/me/contrasena`, `GET /api/asignaciones/me`, `GET /api/ausencias/me`, `POST /api/ausencias`, `PUT /api/ausencias/{id}`, `DELETE /api/ausencias/{id}`, `POST /api/fichajes/entrada`, `PUT /api/fichajes/salida`, `GET /api/fichajes/estado-actual` |
 | **Consulta general** | `EMPRESA`, `SUPERVISOR`, `EMPLEADO` | `GET /api/fichajes`, `GET /api/reportes/**`, `GET /api/ausencias/tipos`, `GET /api/ausencias/estados`, `GET /api/ausencias/justificantes/{nombreArchivo}`, `GET /api/asignaciones/modalidades`, `GET /api/empleados/roles` |
 | **Público** | Sin autenticación | `POST /api/auth/login-empresa`, `POST /api/auth/login-empleado`, `POST /api/empresas/registro`, `/swagger-ui/**`, `/v3/api-docs/**` |
@@ -206,10 +206,14 @@ La estrategia de versionado sigue **Semantic Versioning** (`MAJOR.MINOR.PATCH`):
   Añade prefijo `/api/auth` a las rutas públicas de autenticación y garantiza la actualización del contenedor en cada deploy con `--force-recreate`.
 - **`v1.2.0`** → nueva funcionalidad y correcciones.
   Acceso del rol SUPERVISOR a `GET /api/empleados` filtrado por departamento, soporte de turnos nocturnos, corrección del DataSeeder y mejora del pipeline de deploy.
-- **`v1.3.0`** → soporte para eliminar justificante en ausencias. *(latest)*
+- **`v1.3.0`** → soporte para eliminar justificante en ausencias.
   Permite al empleado eliminar el justificante adjunto de una ausencia en estado SOLICITADA
   sin necesidad de adjuntar un archivo nuevo, resolviendo el bloqueo cuando se adjuntaba
   un archivo incorrecto.
+- **`v1.4.0`** → mejoras en autenticación, validaciones de ausencias y correcciones de roles. *(latest)*
+    Añade el nombre de empresa en el token JWT y respuesta de login, valida fichajes existentes
+    al solicitar y aprobar ausencias, corrige el rol SUPERVISOR en TurnoService, fichajes y
+    endpoints /me, y normaliza la persistencia de fechas a UTC.
 ### Criterio de uso
  
 Para integración con clientes y despliegue, la referencia será siempre la **última versión estable aprobada**, no necesariamente el último commit de la rama `main`.
