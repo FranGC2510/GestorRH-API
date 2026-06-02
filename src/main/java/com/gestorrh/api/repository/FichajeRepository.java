@@ -65,4 +65,16 @@ public interface FichajeRepository extends JpaRepository<Fichaje, Long> {
             "GROUP BY f.empleado.nombre " +
             "ORDER BY COUNT(f) DESC")
     List<Object[]> obtenerTopRetrasos(@Param("idEmpresa") Long idEmpresa);
+
+    /**
+     * Devuelve los IDs de asignación que tienen al menos un fichaje asociado,
+     * filtrado por una lista de IDs candidatos.
+     * Se usa antes de eliminar asignaciones al aprobar una ausencia para evitar
+     * violar la restricción de clave foránea entre fichaje y asignacion_turno.
+     *
+     * @param ids Lista de IDs de asignación a comprobar.
+     * @return Lista de IDs que tienen fichajes asociados y no pueden eliminarse.
+     */
+    @Query("SELECT DISTINCT f.asignacion.idAsignacion FROM Fichaje f WHERE f.asignacion.idAsignacion IN :ids")
+    List<Long> findIdAsignacionesConFichajes(@Param("ids") List<Long> ids);
 }

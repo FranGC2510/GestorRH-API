@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -373,5 +374,70 @@ class AusenciaServiceTest {
                 () -> ausenciaService.actualizarMiAusencia(1L, peticion, null));
         assertTrue(ex.getMessage().contains("ya has fichado"));
         verify(ausenciaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Aprobar ausencia no elimina asignaciones que tienen fichajes asociados")
+    void revisarAusencia_AprobadaNoEliminaAsignacionesConFichajes() {
+        simularAutenticacion(EMAIL_EMPRESA, "ROLE_EMPRESA");
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA)).thenReturn(Optional.of(empresaPrueba));
+
+        Ausencia ausenciaPendiente = Ausencia.builder()
+                .idAusencia(1L).empleado(empleadoLogueado).estado(EstadoAusencia.SOLICITADA)
+                .fechaInicio(LocalDate.of(2026, 10, 20)).fechaFin(LocalDate.of(2026, 10, 25)).build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaPendiente));
+        when(ausenciaRepository.save(any(Ausencia.class))).thenAnswer(i -> i.getArgument(0));
+
+        AsignacionTurno asignacionConFichaje = AsignacionTurno.builder().idAsignacion(10L).build();
+        when(asignacionRepository.findByEmpleadoIdEmpleadoAndFechaBetween(
+                eq(10L), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of(asignacionConFichaje));
+
+        when(fichajeRepository.findIdAsignacionesConFichajes(List.of(10L)))
+                .thenReturn(List.of(10L));
+
+        PeticionRevisionAusenciaDTO peticion = PeticionRevisionAusenciaDTO.builder()
+                .estado(EstadoAusencia.APROBADA).build();
+
+        RespuestaAusenciaDTO respuesta = ausenciaService.revisarAusencia(1L, peticion);
+
+        assertEquals(EstadoAusencia.APROBADA, respuesta.getEstado());
+        verify(asignacionRepository, never()).deleteAll(anyList());
+    }
+
+    @Test
+    @DisplayName("Aprobar ausencia elimina solo las asignaciones sin fichajes asociados")
+    void revisarAusencia_AprobadaEliminaSoloAsignacionesSinFichajes() {
+        simularAutenticacion(EMAIL_EMPRESA, "ROLE_EMPRESA");
+        when(empresaRepository.findByEmail(EMAIL_EMPRESA)).thenReturn(Optional.of(empresaPrueba));
+
+        Ausencia ausenciaPendiente = Ausencia.builder()
+                .idAusencia(1L).empleado(empleadoLogueado).estado(EstadoAusencia.SOLICITADA)
+                .fechaInicio(LocalDate.of(2026, 10, 20)).fechaFin(LocalDate.of(2026, 10, 25)).build();
+
+        when(ausenciaRepository.findById(1L)).thenReturn(Optional.of(ausenciaPendiente));
+        when(ausenciaRepository.save(any(Ausencia.class))).thenAnswer(i -> i.getArgument(0));
+
+        AsignacionTurno asignacionConFichaje = AsignacionTurno.builder().idAsignacion(10L).build();
+        AsignacionTurno asignacionSinFichaje = AsignacionTurno.builder().idAsignacion(20L).build();
+
+        when(asignacionRepository.findByEmpleadoIdEmpleadoAndFechaBetween(
+                eq(10L), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of(asignacionConFichaje, asignacionSinFichaje));
+
+        when(fichajeRepository.findIdAsignacionesConFichajes(List.of(10L, 20L)))
+                .thenReturn(List.of(10L));
+
+        PeticionRevisionAusenciaDTO peticion = PeticionRevisionAusenciaDTO.builder()
+                .estado(EstadoAusencia.APROBADA).build();
+
+        RespuestaAusenciaDTO respuesta = ausenciaService.revisarAusencia(1L, peticion);
+
+        assertEquals(EstadoAusencia.APROBADA, respuesta.getEstado());
+        verify(asignacionRepository, times(1)).deleteAll(argThat(lista -> {
+            List<AsignacionTurno> eliminadas = new java.util.ArrayList<>((Collection) lista);
+            return eliminadas.size() == 1 && eliminadas.get(0).getIdAsignacion().equals(20L);
+        }));
     }
 }

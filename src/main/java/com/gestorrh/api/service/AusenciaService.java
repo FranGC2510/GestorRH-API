@@ -276,9 +276,19 @@ public class AusenciaService {
                     ausencia.getFechaFin()
             );
             if (!turnosSolapados.isEmpty()) {
-                asignacionRepository.deleteAll(turnosSolapados);
-                log.info("SISTEMA: Eliminados {} turnos planificados para el empleado ID {} debido a la aprobación de la ausencia ID {}.",
-                        turnosSolapados.size(), ausencia.getEmpleado().getIdEmpleado(), idAusencia);
+                List<Long> idsConFichajes = fichajeRepository.findIdAsignacionesConFichajes(
+                        turnosSolapados.stream()
+                                .map(AsignacionTurno::getIdAsignacion)
+                                .collect(Collectors.toList())
+                );
+                List<AsignacionTurno> eliminables = turnosSolapados.stream()
+                        .filter(a -> !idsConFichajes.contains(a.getIdAsignacion()))
+                        .collect(Collectors.toList());
+                if (!eliminables.isEmpty()) {
+                    asignacionRepository.deleteAll(eliminables);
+                    log.info("SISTEMA: Eliminados {} turnos planificados para el empleado ID {} debido a la aprobación de la ausencia ID {}.",
+                            eliminables.size(), ausencia.getEmpleado().getIdEmpleado(), idAusencia);
+                }
             }
         }
 
