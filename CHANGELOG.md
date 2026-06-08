@@ -1,0 +1,155 @@
+# Changelog
+
+Todos los cambios relevantes de este proyecto se documentan en este fichero.
+
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/),
+y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
+ 
+---
+
+## [Unreleased]
+
+### Documentación
+- Creación de `CHANGELOG.md` siguiendo el estándar Keep a Changelog (#144)
+---
+
+## [1.4.0] - 2026-06-02
+
+### Añadido
+- Nombre de empresa incluido en el token JWT y en la respuesta de login del empleado (#121)
+- Validación que impide solicitar una ausencia en fechas en las que el empleado ya tiene fichajes registrados (#120)
+### Corregido
+- Al aprobar una ausencia, ahora solo se eliminan las asignaciones de turno que no tienen fichajes asociados, evitando el error de clave foránea (#119)
+- Normalización de la persistencia y serialización de fechas a UTC en toda la API (#110)
+- Corrección de `@PreAuthorize` en endpoints `/me` y de gestión para que el rol `SUPERVISOR` funcione correctamente (#114)
+- Corrección de `obtenerEmpresaAutenticada` en `TurnoService` para que soporte el rol `SUPERVISOR` (#117)
+- Corrección de la validación de departamento en la consulta de fichajes filtrada por supervisor (#118)
+- Añadido `@Transactional` en `loginEmpleado` para evitar `LazyInitializationException` al acceder a la empresa (#122)
+---
+
+## [1.3.0] - 2026-05-19
+
+### Añadido
+- Nuevo campo `eliminarJustificante` en `PeticionAusenciaDTO` que permite al empleado eliminar el justificante adjunto de una ausencia en estado `SOLICITADA` sin necesidad de adjuntar un archivo nuevo (#111)
+---
+
+## [1.2.0] - 2026-05-18
+
+### Añadido
+- El rol `SUPERVISOR` puede acceder a `GET /api/empleados` con filtrado automático y transparente por departamento, sin parámetros adicionales (#86)
+### Corregido
+- Soporte para turnos nocturnos: `TurnoService` acepta turnos con `horaInicio >= 16:00` y `horaFin <= 08:00` (#105)
+- Corrección del `DataSeeder` y de la query `obtenerTopRetrasos` en `FichajeRepository`
+- Pipeline de deploy en Oracle: añadido `script_stop` para detectar fallos reales en el paso de despliegue
+---
+
+## [1.1.3] - 2026-04-28
+
+### Corregido
+- Añadido prefijo `/api/auth` a las rutas públicas de autenticación en el filtro JWT y en la configuración de seguridad
+### Infraestructura
+- Añadido `--force-recreate` al paso de deploy en Oracle para garantizar que el contenedor se actualiza en cada despliegue
+---
+
+## [1.1.2] - 2026-04-28
+
+### Corregido
+- Las rutas públicas de autenticación y registro ahora se excluyen correctamente del filtro JWT, resolviendo el bloqueo en el login (#95)
+---
+
+## [1.1.1] - 2026-04-22
+
+### Corregido
+- Añadidas rutas `/api/swagger-ui/**` a los permisos públicos de Spring Security para que Swagger UI sea accesible sin token
+---
+
+## [1.1.0] - 2026-04-22
+
+### Añadido
+- Endpoint de reset de contraseña para RRHH: `PUT /api/empleados/{id}/reset-password`, accesible solo para el rol `EMPRESA` (#75)
+- Endpoint BFF `GET /api/fichajes/estado-actual` para el dashboard móvil, que consolida en una sola llamada si el empleado tiene turno hoy y si ya ha fichado (#82)
+- Parámetros `fechaInicio` y `fechaFin` ahora son opcionales en `GET /api/fichajes`; si se omiten se aplican valores por defecto (#87)
+- Documentación del campo `justificante` en `RespuestaAusenciaDTO` con descripción de uso para descarga (#88)
+- Campos `horaInicio` y `horaFin` añadidos a `RespuestaAsignacionTurnoDTO`
+### Corregido
+- El servidor devuelve `401` en lugar de `403` cuando el token JWT está caducado, corrigiendo el flujo de reautenticación del cliente Android (#91)
+- Los DTOs de fichaje aceptan coordenadas nulas para teletrabajo; el fichaje de salida presencial obliga a estar dentro del radio de la sede
+- Varios arreglos en el pipeline CI para resolver errores de conexión en la generación de Swagger y permisos en GitHub Pages
+### Infraestructura
+- Configuración del pipeline CD para despliegue automático en Oracle Cloud con imagen Docker ARM64
+- Optimización del `Dockerfile` para construcción multi-stage
+---
+
+## [1.0.1] - 2026-04-13
+
+### Corregido
+- Clave JWT por defecto corregida a formato Base64 estricto en `application-dev.yml` y `application-test.yml` para evitar `DecodingException` en local (#76)
+- Corrección de enlace en la documentación del `README.md`
+---
+
+## [1.0.0] - 2026-04-08
+
+### Añadido
+- Primera versión estable lista para integración con clientes y despliegue en producción
+- Licencia Apache 2.0 aplicada al repositorio
+- Refactorización final de `FichajeService` y `ReporteController` para cumplir con arquitectura N-Capas
+- Preparación agnóstica para despliegue en producción: variables de entorno, perfiles `dev`/`test`/`prod`, fail-fast intencionado en producción
+- Control de concurrencia optimista con `@Version` en entidades `AsignacionTurno` y `Ausencia`
+- Cobertura de tests completada para `FichajeService`, `EmpresaService`, `FileStorageService`, `GeofencingService` y `ReportePdfService`
+---
+
+## [0.9.0] - sin fecha de release (tag de hito)
+
+### Añadido
+- Portal de documentación unificado (Swagger UI + Javadoc) desplegado automáticamente en GitHub Pages mediante CI/CD
+- Sistema de logging y auditoría en todos los servicios core con `@Slf4j`
+- Javadoc completo en controladores, servicios y DTOs con descripción de paquetes
+- Refactorización global de respuestas de error en Swagger con anotaciones propias (`@ApiErroresLectura`, `@ApiErroresEscritura`, `@ApiErroresAccion`)
+- Optimización de consultas N+1 con `JOIN FETCH` en repositorios JPA
+### Corregido
+- Códigos de respuesta HTTP corregidos en Swagger (200, 201, 204) para cada endpoint
+---
+
+## [0.8.0] - sin fecha de release (tag de hito)
+
+### Añadido
+- Módulo de estadísticas y KPIs para dashboards: empleados por departamento, ausencias por tipo/estado, ranking de retrasos (`GET /api/estadisticas/**`)
+- Generación de reportes PDF (detalle y resumen) con OpenPDF (`GET /api/reportes/**/pdf`)
+- Subida, validación y descarga de justificantes médicos en ausencias (multipart, extensiones permitidas: pdf, jpg, jpeg, png)
+- Modificación manual auditada de fichajes con registro de incidencias (`PUT /api/fichajes/{id}/modificar`)
+- Motor de cálculo de horas extras con margen de cortesía de 15 minutos
+- Endpoints de reportes en formato JSON (detalle y resumen) con filtros por fecha y empleado
+- Tests unitarios para `GeofencingService` y cálculo de horas extras en `ReporteService`
+---
+
+## [0.1.0] - sin fecha de release (tag de hito)
+
+### Añadido
+- Estructura base del proyecto Spring Boot con perfiles `dev`, `test` y configuración Docker Compose para PostgreSQL local
+- Entidades JPA: `Empresa`, `Empleado`, `Turno`, `AsignacionTurno`, `Fichaje`, `Ausencia` con relaciones y enums de dominio
+- Autenticación stateless con JWT: endpoints `POST /api/auth/login-empresa` y `POST /api/auth/login-empleado`
+- Autorización RBAC con `@PreAuthorize` para los roles `EMPRESA`, `SUPERVISOR` y `EMPLEADO`
+- CRUD completo de empleados con aislamiento multi-tenant, baja programada y readmisión (`/api/empleados`)
+- Perfil propio del empleado y cambio de contraseña seguro (`GET /api/empleados/me`, `PUT /api/empleados/me/contrasena`)
+- CRUD completo de turnos con validación de horas (`/api/turnos`)
+- CRUD completo de asignaciones de turno con validación de jornada máxima (8h) y solapamiento con ausencias (`/api/asignaciones`)
+- Gestión completa de ausencias: solicitud, edición, cancelación y flujo de aprobación/rechazo (`/api/ausencias`)
+- Registro de fichajes de entrada y salida con validación de geovallado (fórmula Haversine), detección de retrasos y salidas anticipadas (`/api/fichajes`)
+- CRUD de empresa con configuración de sede y radio de geovallado (`/api/empresas`)
+- Gestor global de excepciones (`@RestControllerAdvice`) con respuesta estandarizada `RespuestaErrorDTO`
+- Tarea programada (CRON diario) para desactivar empleados con contrato expirado
+- Pipeline CI con GitHub Actions: tests automáticos en H2, generación de Swagger/Javadoc y despliegue en GitHub Pages
+- Tests unitarios con Mockito para: `AutenticacionService`, `EmpleadoService`, `TurnoService`, `AsignacionTurnoService`, `AusenciaService`
+- `DataSeeder` para inyección automática de datos de prueba en entorno `dev`
+---
+
+[Unreleased]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.3...v1.2.0
+[1.1.3]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.0.0
