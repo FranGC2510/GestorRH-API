@@ -152,4 +152,4 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 [1.1.1]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.0.0
+[1.0.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v0.1.0...v1.0.0
