@@ -5,7 +5,7 @@ spring:
     password: password_rh
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
