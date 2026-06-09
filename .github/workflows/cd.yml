@@ -1,0 +1,85 @@
+name: CD Pipeline API
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de la versión a desplegar (ej: v1.4.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    name: Build, Push y Deploy en Oracle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Determinar tag de versión
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Login en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configurar Docker Buildx (soporte ARM64)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Construir y subir imagen Docker ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ghcr.io/gestorrh-multiplataforma/gestorrh-api:latest
+            ghcr.io/gestorrh-multiplataforma/gestorrh-api:${{ steps.version.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Copiar docker-compose.prod.yml al servidor
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/opt/gestorrh"
+
+      - name: Desplegar en servidor Oracle
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /opt/gestorrh
+
+            echo "Descargando nueva imagen..."
+            docker pull ghcr.io/gestorrh-multiplataforma/gestorrh-api:latest
+
+            echo "Reiniciando servicios..."
+            docker compose -f docker-compose.prod.yml up -d --no-build --force-recreate
+
+            echo "Limpiando imágenes antiguas..."
+            docker image prune -f
+
+            echo "Deploy ${{ steps.version.outputs.tag }} completado"
