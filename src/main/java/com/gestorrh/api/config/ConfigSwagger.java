@@ -39,7 +39,7 @@ public class ConfigSwagger {
         return new OpenAPI()
                 .info(new Info()
                         .title("GestorRH API")
-                        .version("1.4.0")
+                        .version("1.4.1")
                         .description("Documentación interactiva de la API REST para el sistema GestorRH.<br><br>" +
 
                                 "<h3>Flujo de inicio rápido (Ciclo Natural)</h3>" +
