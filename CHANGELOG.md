@@ -10,6 +10,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Añadido `ValidadorEntornoProduccion` que falla explícitamente con mensajes legibles si alguna variable de entorno obligatoria (`JWT_SECRET`, `DB_USERNAME`, `DB_PASSWORD`) está ausente al arrancar en perfil `prod` (#128)
 - Integrado Flyway como gestor de migraciones de base de datos (#127)
 - Creado `V1__esquema_inicial.sql` con el esquema completo generado desde la BD real en estado v1.4.1
 - `ddl-auto: update` eliminado de todos los perfiles; Hibernate pasa a modo `validate`
