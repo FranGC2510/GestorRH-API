@@ -20,7 +20,7 @@ services:
     image: ghcr.io/gestorrh-multiplataforma/gestorrh-api:latest
     container_name: gestorrh-api-prod
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - DB_URL=jdbc:postgresql://postgres:5432/gestion_plantillas
       - DB_USERNAME=${DB_USERNAME}
