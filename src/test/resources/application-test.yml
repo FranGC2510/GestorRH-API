@@ -1,13 +1,8 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
 
 jwt:
   secret: "zXo9cM8yK4qR2aT7vN1bW5eH3gJ6fL0uP9sD8aA2kV4="

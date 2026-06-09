@@ -10,6 +10,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Integrado Flyway como gestor de migraciones de base de datos (#127)
+- Creado `V1__esquema_inicial.sql` con el esquema completo generado desde la BD real en estado v1.4.1
+- `ddl-auto: update` eliminado de todos los perfiles; Hibernate pasa a modo `validate`
+- Tests migrados de H2 a Testcontainers con PostgreSQL real para garantizar paridad con producción
+- Perfil `api-docs` configurado con `spring.flyway.enabled=false` para evitar conflictos en generación de Swagger
 - Pipeline CD extraído a workflow independiente `cd.yml` con soporte para dispatch manual con tag de entrada (#148)
 - El deploy ahora copia `docker-compose.prod.yml` al servidor antes de levantar los contenedores, garantizando que los cambios de configuración se aplican en cada despliegue (#148)
 
