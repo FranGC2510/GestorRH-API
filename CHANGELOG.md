@@ -9,6 +9,14 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+---
+## [1.4.1] - 2026-06-09
+
+### Infraestructura
+- Configurado HTTPS en el servidor mediante Nginx como reverse proxy y certificado Let's Encrypt con renovación automática vía Certbot (#129)
+- El acceso por HTTP redirige automáticamente a HTTPS
+- Puerto 8080 restringido a localhost; todo el tráfico exterior pasa por Nginx
+- Añadida `forward-headers-strategy: framework` en `application.yml` para el correcto procesamiento de cabeceras `X-Forwarded-Proto`
 ### Documentación
 - Creación de `CHANGELOG.md` siguiendo el estándar Keep a Changelog (#144)
 ---
@@ -143,7 +151,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - `DataSeeder` para inyección automática de datos de prueba en entorno `dev`
 ---
 
-[Unreleased]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/GestorRH-Multiplataforma/GestorRH-API/compare/v1.1.3...v1.2.0

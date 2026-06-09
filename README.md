@@ -1,7 +1,7 @@
 # GestorRH - API REST
  
 [![CI Pipeline](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml/badge.svg)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-v1.4.0--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.4.0)
+[![Version](https://img.shields.io/badge/version-v1.4.1--stable-brightgreen)](https://github.com/GestorRH-Multiplataforma/GestorRH-API/releases/tag/v1.4.1)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
