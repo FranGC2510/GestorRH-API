@@ -10,6 +10,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Integrado Spring Boot Actuator con endpoints de monitorización (`/actuator/health`, `info`, `metrics`, `env`, `loggers`) protegidos con HTTP Basic Auth mediante `AuthenticationManager` propio, completamente aislado del BCryptPasswordEncoder y del sistema JWT de la aplicación (#130)
+- Credenciales de Actuator (`ACTUATOR_USER`, `ACTUATOR_PASSWORD`) leídas exclusivamente desde variables de entorno, añadidas como obligatorias en `ValidadorEntornoProduccion` y documentadas en `.env.example` (#130)
+- Configurado `healthcheck` en `docker-compose.prod.yml` usando `/actuator/health` para que Docker refleje el estado real del contenedor (#130)
 - Añadido `ValidadorEntornoProduccion` que falla explícitamente con mensajes legibles si alguna variable de entorno obligatoria (`JWT_SECRET`, `DB_USERNAME`, `DB_PASSWORD`) está ausente al arrancar en perfil `prod` (#128)
 - Integrado Flyway como gestor de migraciones de base de datos (#127)
 - Creado `V1__esquema_inicial.sql` con el esquema completo generado desde la BD real en estado v1.4.1

@@ -4,10 +4,6 @@ spring:
   profiles:
     active: dev
 
-  security:
-    user:
-      name: usuario_ignorado
-      password: sin_uso
   jpa:
     open-in-view: false
     properties:
@@ -38,3 +34,17 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: method
+
+# CONFIGURACIÓN DE ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true

@@ -11,6 +11,12 @@ spring:
       hibernate:
         format_sql: true
 
+  # CREDENCIALES DE ACTUATOR
+  security:
+    user:
+      name: ${ACTUATOR_USER:actuator_dev}
+      password: ${ACTUATOR_PASSWORD:actuator_dev}
+
 logging:
   file:
     name: logs/gestorrh-dev.log
