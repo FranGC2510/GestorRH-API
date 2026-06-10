@@ -118,6 +118,7 @@ public class FiltroJwt extends OncePerRequestFilter {
                 || ruta.equals("/error")
                 || ruta.startsWith("/v3/api-docs")
                 || ruta.startsWith("/swagger-ui")
-                || ruta.equals("/swagger-ui.html");
+                || ruta.equals("/swagger-ui.html")
+                || ruta.startsWith("/actuator");
     }
 }

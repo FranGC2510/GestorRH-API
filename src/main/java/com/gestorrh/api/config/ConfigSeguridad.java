@@ -19,9 +19,18 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
  * Clase de configuración global de seguridad de Spring Security.
@@ -110,6 +119,54 @@ public class ConfigSeguridad {
     }
 
     /**
+     * Cadena de seguridad exclusiva para los endpoints de Actuator.
+     * <p>
+     * Tiene mayor precedencia que la cadena JWT (@Order(1) vs @Order(2)) e intercepta
+     * únicamente las rutas bajo /actuator/**. La autenticación se realiza mediante
+     * HTTP Basic con credenciales propias del administrador del sistema, completamente
+     * independientes del sistema JWT y del BCryptPasswordEncoder de la aplicación.
+     * </p>
+     *
+     * @param http     El objeto {@link HttpSecurity} para configurar la seguridad web.
+     * @param username Nombre de usuario leído desde la variable de entorno ACTUATOR_USER.
+     * @param password Contraseña leída desde la variable de entorno ACTUATOR_PASSWORD.
+     * @return La cadena de filtros de Actuator configurada.
+     * @throws Exception Si ocurre algún error durante la configuración.
+     */
+    @Bean
+    @Order(1)
+    public SecurityFilterChain cadenaFiltrosActuator(
+            HttpSecurity http,
+            @Value("${spring.security.user.name:actuator}") String username,
+            @Value("${spring.security.user.password:actuator}") String password) throws Exception {
+
+        UserDetailsService uds = new InMemoryUserDetailsManager(
+                User.withUsername(username)
+                        .password(password)
+                        .roles("ACTUATOR")
+                        .build()
+        );
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(uds);
+        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+
+        AuthenticationManager authManager = new ProviderManager(provider);
+
+        http
+                .securityMatcher("/actuator/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
+                        .anyRequest().hasRole("ACTUATOR")
+                )
+                .httpBasic(Customizer.withDefaults())
+                .authenticationManager(authManager)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    /**
      * Configura la cadena de filtros de seguridad (Security Filter Chain).
      *
      * @param http El objeto {@link HttpSecurity} para configurar la seguridad web.
@@ -117,6 +174,7 @@ public class ConfigSeguridad {
      * @throws Exception Si ocurre algún error durante la configuración.
      */
     @Bean
+    @Order(2)
     public SecurityFilterChain cadenaFiltrosSeguridad(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)

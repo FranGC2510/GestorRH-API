@@ -8,6 +8,10 @@ spring:
     hibernate:
       ddl-auto: ${DB_DDL_AUTO:validate}
     show-sql: false
+  security:
+    user:
+      name: ${ACTUATOR_USER}
+      password: ${ACTUATOR_PASSWORD}
 
 logging:
   level:

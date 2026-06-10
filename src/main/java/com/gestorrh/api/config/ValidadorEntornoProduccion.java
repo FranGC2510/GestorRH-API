@@ -50,7 +50,9 @@ public class ValidadorEntornoProduccion implements InitializingBean {
     private static final List<String> VARIABLES_OBLIGATORIAS = List.of(
             "JWT_SECRET",
             "DB_USERNAME",
-            "DB_PASSWORD"
+            "DB_PASSWORD",
+            "ACTUATOR_USER",
+            "ACTUATOR_PASSWORD"
     );
 
     private final Environment entorno;
