@@ -5,6 +5,7 @@ import com.gestorrh.api.dto.error.RespuestaErrorDTO;
 import com.gestorrh.api.security.FiltroJwt;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -39,6 +40,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
  * el codificador de contraseñas y la integración del filtro personalizado para tokens JWT.
  * </p>
  */
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -81,6 +83,8 @@ public class ConfigSeguridad {
                     ? "Token JWT caducado"
                     : "No autenticado: token ausente o inválido";
 
+            log.warn("ACCESO DENEGADO (401): {} {} - {}", request.getMethod(), request.getRequestURI(), mensaje);
+
             RespuestaErrorDTO error = RespuestaErrorDTO.builder()
                     .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                     .status(HttpServletResponse.SC_UNAUTHORIZED)
@@ -103,6 +107,8 @@ public class ConfigSeguridad {
     @Bean
     public AccessDeniedHandler manejadorAccesoDenegado() {
         return (request, response, accessDeniedException) -> {
+            log.warn("ACCESO DENEGADO (403): {} {} - Sin permisos suficientes", request.getMethod(), request.getRequestURI());
+
             RespuestaErrorDTO error = RespuestaErrorDTO.builder()
                     .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
                     .status(HttpServletResponse.SC_FORBIDDEN)

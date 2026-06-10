@@ -47,7 +47,7 @@ public class GestorExcepciones {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        log.error("Error de VALIDACIÓN en la ruta [{}]: {}", request.getRequestURI(), errores);
+        log.warn("Error de VALIDACIÓN [400] en la ruta [{}]: {}", request.getRequestURI(), errores);
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
                 .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
@@ -75,7 +75,7 @@ public class GestorExcepciones {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<RespuestaErrorDTO> manejarExcepcionesDeNegocio(RuntimeException ex, HttpServletRequest request) {
 
-        log.warn("Violación de regla de NEGOCIO en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Violación de regla de NEGOCIO [400] en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
                 .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
@@ -104,7 +104,7 @@ public class GestorExcepciones {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RespuestaErrorDTO> manejarExcepcionesGlobales(Exception ex, HttpServletRequest request) {
 
-        log.error("Error CRÍTICO no controlado en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
+        log.error("Error CRÍTICO no controlado [500] en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
                 .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
@@ -133,7 +133,7 @@ public class GestorExcepciones {
     @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
     public ResponseEntity<RespuestaErrorDTO> manejarRecursoNoEncontrado(jakarta.persistence.EntityNotFoundException ex, HttpServletRequest request) {
 
-        log.warn("Recurso NO ENCONTRADO en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Recurso NO ENCONTRADO [404] en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
                 .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
@@ -163,7 +163,7 @@ public class GestorExcepciones {
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<RespuestaErrorDTO> manejarConcurrencia(ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
 
-        log.warn("Conflicto de CONCURRENCIA en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Conflicto de CONCURRENCIA [409] en la ruta [{}]: {}", request.getRequestURI(), ex.getMessage());
 
         RespuestaErrorDTO errorResponse = RespuestaErrorDTO.builder()
                 .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
