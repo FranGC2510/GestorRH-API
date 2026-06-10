@@ -137,8 +137,8 @@ public class ConfigSeguridad {
     @Order(1)
     public SecurityFilterChain cadenaFiltrosActuator(
             HttpSecurity http,
-            @Value("${spring.security.user.name}") String username,
-            @Value("${spring.security.user.password}") String password) throws Exception {
+            @Value("${spring.security.user.name:actuator}") String username,
+            @Value("${spring.security.user.password:actuator}") String password) throws Exception {
 
         UserDetailsService uds = new InMemoryUserDetailsManager(
                 User.withUsername(username)
