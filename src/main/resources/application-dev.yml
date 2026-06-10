@@ -18,18 +18,9 @@ spring:
       password: ${ACTUATOR_PASSWORD:actuator_dev}
 
 logging:
-  file:
-    name: logs/gestorrh-dev.log
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      max-history: 30
   level:
     root: WARN
-    com.gestorrh.api.controller: INFO
-    com.gestorrh.api.service: INFO
-    com.gestorrh.api.exception: INFO
-    com.gestorrh.api.config: INFO
+    com.gestorrh.api: INFO
 
 # CONFIGURACIÓN DE SEGURIDAD (JWT).
 jwt:

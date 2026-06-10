@@ -10,6 +10,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Implementado logging estructurado en formato JSON con `logstash-logback-encoder` para ambos perfiles (`dev` y `prod`), compatible con Spring Boot Admin y herramientas externas de análisis de logs (#132)
+- Configurado `logback-spring.xml` con appenders por perfil: JSON en fichero para `dev` y `prod`, texto plano en consola solo para `dev`, solo consola para `test` (#132)
+- Perfil `test` aislado del fichero de log añadiendo `@ActiveProfiles("test")` en `GestorRhApiApplicationTests`, evitando mezcla de logs entre tests y desarrollo (#132)
+- Añadidos logs de auditoría para respuestas 401 y 403 en `ConfigSeguridad` (#132)
+- Añadidos códigos HTTP explícitos en todos los manejadores de `GestorExcepciones` para facilitar el filtrado en producción (#132)
+- Eliminados logs previos en formato texto plano para garantizar ficheros con estructura JSON uniforme (#132)
 - Integrado Spring Boot Actuator con endpoints de monitorización (`/actuator/health`, `info`, `metrics`, `env`, `loggers`) protegidos con HTTP Basic Auth mediante `AuthenticationManager` propio, completamente aislado del BCryptPasswordEncoder y del sistema JWT de la aplicación (#130)
 - Credenciales de Actuator (`ACTUATOR_USER`, `ACTUATOR_PASSWORD`) leídas exclusivamente desde variables de entorno, añadidas como obligatorias en `ValidadorEntornoProduccion` y documentadas en `.env.example` (#130)
 - Configurado `healthcheck` en `docker-compose.prod.yml` usando `/actuator/health` para que Docker refleje el estado real del contenedor (#130)
