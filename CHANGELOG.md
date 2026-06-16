@@ -33,6 +33,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Pipeline CD extraído a workflow independiente `cd.yml` con soporte para dispatch manual con tag de entrada (#148)
 - El deploy ahora copia `docker-compose.prod.yml` al servidor antes de levantar los contenedores, garantizando que los cambios de configuración se aplican en cada despliegue (#148)
 
+### Fixed
+- Permitida la sobrescritura del `docker-compose.prod.yml` en el servidor durante el despliegue, evitando el fallo cuando el fichero ya existe (#NNN)
+
 ---
 ## [1.4.1] - 2026-06-09
 
