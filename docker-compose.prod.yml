@@ -27,6 +27,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - DB_DDL_AUTO=update
+      - ACTUATOR_USER=${ACTUATOR_USER}
+      - ACTUATOR_PASSWORD=${ACTUATOR_PASSWORD}
     volumes:
       - api_uploads:/app/uploads
     networks:
@@ -40,6 +42,33 @@ services:
     healthcheck:
       test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider",
               "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  admin:
+    image: ghcr.io/gestorrh-multiplataforma/gestorrh-admin:latest
+    container_name: gestorrh-admin-prod
+    ports:
+      - "127.0.0.1:9090:9090"
+    environment:
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ACTUATOR_USER=${ACTUATOR_USER}
+      - ACTUATOR_PASSWORD=${ACTUATOR_PASSWORD}
+    networks:
+      - gestorrh-net
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    depends_on:
+      - api
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider",
+              "http://localhost:9090/admin/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3

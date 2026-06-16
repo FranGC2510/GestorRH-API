@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.gestorrh</groupId>
 	<artifactId>api</artifactId>
-	<version>1.4.1</version>
+	<version>1.4.2</version>
 	<name>GestorRH-API</name>
 	<description>API REST para GestorRH</description>
 	<url/>
@@ -61,6 +61,11 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+			<version>4.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -177,6 +182,13 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

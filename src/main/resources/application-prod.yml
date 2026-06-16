@@ -1,6 +1,5 @@
 spring:
   datasource:
-    # Si la variable DB_URL existe, la usa. Si no, usa localhost.
     url: ${DB_URL:jdbc:postgresql://localhost:5432/gestion_plantillas}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -12,6 +11,19 @@ spring:
     user:
       name: ${ACTUATOR_USER}
       password: ${ACTUATOR_PASSWORD}
+  boot:
+    admin:
+      client:
+        url: http://gestorrh-admin-prod:9090/admin
+        username: ${ADMIN_USER}
+        password: ${ADMIN_PASSWORD}
+        instance:
+          name: GestorRH-API
+          service-base-url: http://gestorrh-api-prod:8080
+          management-base-url: http://gestorrh-api-prod:8080
+          metadata:
+            management.username: ${ACTUATOR_USER}
+            management.password: ${ACTUATOR_PASSWORD}
 
 logging:
   level:

@@ -17,6 +17,19 @@ spring:
       name: ${ACTUATOR_USER:actuator_dev}
       password: ${ACTUATOR_PASSWORD:actuator_dev}
 
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090/admin
+        username: admin_dev
+        password: admin_dev
+        instance:
+          name: GestorRH-API
+          management-base-url: http://localhost:8080
+          metadata:
+            management.username: ${ACTUATOR_USER:actuator_dev}
+            management.password: ${ACTUATOR_PASSWORD:actuator_dev}
+
 logging:
   level:
     root: WARN
