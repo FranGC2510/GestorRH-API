@@ -62,6 +62,7 @@ jobs:
           key: ${{ secrets.ORACLE_SSH_KEY }}
           source: "docker-compose.prod.yml"
           target: "/opt/gestorrh"
+          overwrite: true
 
       - name: Desplegar en servidor Oracle
         uses: appleboy/ssh-action@v1.0.3
