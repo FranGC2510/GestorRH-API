@@ -10,6 +10,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Generación automática de datos de build (`build-info`) e información de Java y sistema operativo en el endpoint `/actuator/info`, visible en el panel de Spring Boot Admin
+- Añadido contenedor `gestorrh-admin` en `docker-compose.prod.yml` con Spring Boot Admin conectado a los endpoints de Actuator de la API (#131)
+- Añadidas variables `ACTUATOR_USER` y `ACTUATOR_PASSWORD` al servicio `api` en `docker-compose.prod.yml` (#131)
+- Configurado bloque `location /admin` en Nginx para exponer el dashboard en `https://gestorrh.ddns.net/admin` (#131)
+- Añadidas `ADMIN_USER` y `ADMIN_PASSWORD` como variables obligatorias en `ValidadorEntornoProduccion` y en `.env.example` (#131)
 - Implementado logging estructurado en formato JSON con `logstash-logback-encoder` para ambos perfiles (`dev` y `prod`), compatible con Spring Boot Admin y herramientas externas de análisis de logs (#132)
 - Configurado `logback-spring.xml` con appenders por perfil: JSON en fichero para `dev` y `prod`, texto plano en consola solo para `dev`, solo consola para `test` (#132)
 - Perfil `test` aislado del fichero de log añadiendo `@ActiveProfiles("test")` en `GestorRhApiApplicationTests`, evitando mezcla de logs entre tests y desarrollo (#132)
