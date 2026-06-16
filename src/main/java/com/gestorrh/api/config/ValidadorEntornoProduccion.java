@@ -52,7 +52,9 @@ public class ValidadorEntornoProduccion implements InitializingBean {
             "DB_USERNAME",
             "DB_PASSWORD",
             "ACTUATOR_USER",
-            "ACTUATOR_PASSWORD"
+            "ACTUATOR_PASSWORD",
+            "ADMIN_USER",
+            "ADMIN_PASSWORD"
     );
 
     private final Environment entorno;
