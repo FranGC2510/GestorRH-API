@@ -29,6 +29,8 @@ services:
       - DB_DDL_AUTO=update
       - ACTUATOR_USER=${ACTUATOR_USER}
       - ACTUATOR_PASSWORD=${ACTUATOR_PASSWORD}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     volumes:
       - api_uploads:/app/uploads
     networks:
