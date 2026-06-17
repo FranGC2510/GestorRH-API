@@ -34,6 +34,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - El deploy ahora copia `docker-compose.prod.yml` al servidor antes de levantar los contenedores, garantizando que los cambios de configuración se aplican en cada despliegue (#148)
 
 ### Fixed
+- Corregido el healthcheck del contenedor `admin` en `docker-compose.prod.yml`, que apuntaba a un endpoint de Actuator protegido y devolvía 401; ahora comprueba una ruta pública del panel, evitando el estado `unhealthy` (#131)
 - Propagadas las variables `ADMIN_USER` y `ADMIN_PASSWORD` al servicio `api` en `docker-compose.prod.yml`, necesarias para el registro del cliente Spring Boot Admin y la validación de entorno en producción (#131)
 - Permitida la sobrescritura del `docker-compose.prod.yml` en el servidor durante el despliegue, evitando el fallo cuando el fichero ya existe (#NNN)
 
