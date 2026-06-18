@@ -10,6 +10,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Infraestructura
+- Añadido appender de consola (texto plano) al perfil `prod` en `logback-spring.xml`, permitiendo visualizar los logs de aplicación mediante `docker logs` en producción (#159)
+- Añadido volumen nombrado `api_logs` montado en `/app/logs` del servicio `api` en `docker-compose.prod.yml`, garantizando la persistencia de los logs entre recreaciones del contenedor (#159)
+- Corregida inconsistencia en `application-prod.yml`: `logging.level.root` actualizado a `WARN` para reflejar el nivel efectivo que ya aplicaba `logback-spring.xml` (#159)
 - Generación automática de datos de build (`build-info`) e información de Java y sistema operativo en el endpoint `/actuator/info`, visible en el panel de Spring Boot Admin
 - Añadido contenedor `gestorrh-admin` en `docker-compose.prod.yml` con Spring Boot Admin conectado a los endpoints de Actuator de la API (#131)
 - Añadidas variables `ACTUATOR_USER` y `ACTUATOR_PASSWORD` al servicio `api` en `docker-compose.prod.yml` (#131)
