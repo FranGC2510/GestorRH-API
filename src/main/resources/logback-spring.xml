@@ -69,9 +69,11 @@
         </appender>
         <root level="WARN">
             <appender-ref ref="FICHERO_JSON_PROD"/>
+            <appender-ref ref="CONSOLA"/>
         </root>
         <logger name="com.gestorrh.api" level="INFO" additivity="false">
             <appender-ref ref="FICHERO_JSON_PROD"/>
+            <appender-ref ref="CONSOLA"/>
         </logger>
     </springProfile>
 

@@ -33,6 +33,7 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     volumes:
       - api_uploads:/app/uploads
+      - api_logs:/app/logs
     networks:
       - gestorrh-net
     deploy:
@@ -84,3 +85,4 @@ networks:
 volumes:
   gestorrh_pgdata_prod:
   api_uploads:
+  api_logs:
