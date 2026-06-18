@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.gestorrh</groupId>
 	<artifactId>api</artifactId>
-	<version>1.4.2</version>
+	<version>1.4.3</version>
 	<name>GestorRH-API</name>
 	<description>API REST para GestorRH</description>
 	<url/>
