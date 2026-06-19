@@ -9,6 +9,21 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Security
+- Implementado rate limiting en endpoints públicos de autenticación y registro
+  mediante Bucket4j para prevenir ataques de fuerza bruta (#133)
+- Los endpoints `/api/auth/login-empresa`, `/api/auth/login-empleado` y
+  `/api/empresas/registro` quedan limitados por IP con contadores independientes
+  por endpoint (#133)
+- Al superar el límite se devuelve HTTP 429 con el formato estándar
+  `RespuestaErrorDTO` y código `TOO_MANY_REQUESTS` (#133)
+- Los límites son configurables mediante variables de entorno
+  (`RATE_LIMIT_LOGIN_MAX_REQUESTS`, `RATE_LIMIT_LOGIN_WINDOW_MINUTES`,
+  `RATE_LIMIT_REGISTRO_MAX_REQUESTS`, `RATE_LIMIT_REGISTRO_WINDOW_MINUTES`)
+  con valores por defecto de 10 intentos cada 5 minutos para login y
+  5 intentos cada 10 minutos para registro (#133)
+- Añadidas las nuevas variables de configuración a `.env.example` (#133)
+
 ### Infraestructura
 - Añadido appender de consola (texto plano) al perfil `prod` en `logback-spring.xml`, permitiendo visualizar los logs de aplicación mediante `docker logs` en producción (#159)
 - Añadido volumen nombrado `api_logs` montado en `/app/logs` del servicio `api` en `docker-compose.prod.yml`, garantizando la persistencia de los logs entre recreaciones del contenedor (#159)
