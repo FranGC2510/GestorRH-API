@@ -3,6 +3,7 @@ package com.gestorrh.api.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gestorrh.api.dto.error.RespuestaErrorDTO;
 import com.gestorrh.api.security.FiltroJwt;
+import com.gestorrh.api.security.FiltroRateLimit;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,7 @@ public class ConfigSeguridad {
      * Filtro personalizado para la validación de tokens JWT.
      */
     private final FiltroJwt filtroJwt;
+    private final FiltroRateLimit filtroRateLimit;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .findAndRegisterModules()
@@ -195,7 +197,8 @@ public class ConfigSeguridad {
                         .authenticationEntryPoint(puntoEntradaAutenticacion())
                         .accessDeniedHandler(manejadorAccesoDenegado())
                 )
-                .addFilterBefore(filtroJwt, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(filtroRateLimit, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(filtroJwt, FiltroRateLimit.class);
 
         return http.build();
     }
