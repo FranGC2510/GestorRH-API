@@ -10,6 +10,13 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Security
+- Bloqueado el acceso externo a los endpoints internos de Spring Boot Actuator
+  (`/actuator/**`) en Nginx como defensa en profundidad; el endpoint
+  `/actuator/health` permanece accesible públicamente devolviendo únicamente
+  el estado básico sin detalle de componentes para peticiones no autenticadas (#154)
+- Spring Boot Admin sigue recibiendo el detalle completo de salud (`db`,
+  `diskSpace`, `ssl`) al acceder por red interna Docker directamente a
+  `gestorrh-api-prod:8080`, sin pasar por Nginx (#154)
 - Implementado rate limiting en endpoints públicos de autenticación y registro
   mediante Bucket4j para prevenir ataques de fuerza bruta (#133)
 - Los endpoints `/api/auth/login-empresa`, `/api/auth/login-empleado` y
